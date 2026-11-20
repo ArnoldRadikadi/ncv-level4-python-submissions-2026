@@ -1,0 +1,1574 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EWC · Basic Structures of Python Lab</title>
+<style>
+:root{
+  --navy:#005596; --navy-d:#1B2A41; --gold:#FDB515; --gold-l:#FFF5D6; --crimson:#C3092B;
+  --green:#1E8E3E; --green-l:#E6F4EA; --red-l:#FDECEE; --blue-l:#EEF5FA; --blue-m:#DCE8F5;
+  --purple:#6B3FC9; --purple-l:#F5F0FF;
+  --ink:#1d2530; --muted:#5b6675; --line:#d5dde6; --bg:#f6f8fb; --card:#ffffff;
+  --code-bg:#fbfcfe; --hl:#FFF0A8; --mono:Consolas,"Cascadia Mono","DejaVu Sans Mono",Menlo,monospace;
+}
+*{box-sizing:border-box}
+html{font-size:17px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Arial,system-ui,sans-serif;line-height:1.45}
+button{font:inherit;cursor:pointer}
+code,.mono{font-family:var(--mono)}
+code{background:var(--blue-l);padding:0 .25em;border-radius:4px;font-size:.92em}
+kbd{font-family:var(--mono);font-size:.85em;background:#fff;border:1px solid #b9c4d0;border-bottom-width:3px;border-radius:5px;padding:0 .35em;white-space:nowrap}
+
+/* ---------- top bar ---------- */
+#top{position:sticky;top:0;z-index:50;background:var(--navy-d);color:#fff;display:flex;align-items:center;gap:.55rem;padding:.35rem .8rem;flex-wrap:wrap}
+.ewc-mark-wrap{display:inline-flex;align-items:center;gap:.45rem;background:#fff;padding:.15rem .45rem;border-radius:8px;border:2px solid var(--gold)}
+.ewc-mark-wrap img{height:28px;width:auto;display:block;object-fit:contain}
+.ewc-fallback{display:none;align-items:center;gap:.35rem;font-weight:800;font-size:.82rem;color:var(--navy)}
+.ewc-fallback span.orb{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#4da6ff,var(--navy));color:#fff;font-size:.7rem}
+#top .brand{font-weight:700;white-space:nowrap}
+#top .brand span{color:var(--gold)}
+#nav{display:flex;gap:.25rem;flex-wrap:wrap;flex:1}
+#nav button{background:transparent;color:#cfe0f5;border:1px solid #3d5373;border-radius:999px;padding:.12rem .55rem;font-size:.78rem;white-space:nowrap}
+#nav button.on{background:var(--gold);color:var(--navy-d);border-color:var(--gold);font-weight:700}
+#nav button.done::after{content:" ✓";color:#7ee08f}
+#nav button.on.done::after{color:var(--green)}
+.tb{display:flex;gap:.35rem;align-items:center}
+.tb button{background:#2c3e5a;color:#fff;border:1px solid #4a6286;border-radius:6px;padding:.15rem .5rem;font-size:.8rem}
+.tb button.on{background:var(--gold);color:var(--navy-d)}
+#progress{height:4px;background:#3d5373;position:sticky;top:0}
+#progress i{display:block;height:100%;background:var(--gold);width:0;transition:width .3s}
+
+/* ---------- campus banner ---------- */
+.ewc-banner{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;background:linear-gradient(120deg,var(--navy-d),var(--navy));color:#fff;border-radius:14px;padding:.85rem 1.1rem;margin-bottom:1rem;border-bottom:4px solid var(--gold);box-shadow:0 4px 14px rgba(0,0,0,.08)}
+.ewc-banner-left{display:flex;align-items:center;gap:.9rem}
+.ewc-logo-box{background:#fff;border-radius:10px;padding:.35rem .6rem;display:flex;align-items:center;gap:.45rem;border:2px solid var(--gold);flex-shrink:0}
+.ewc-logo-box img{height:44px;width:auto;display:block;object-fit:contain}
+.ewc-banner h1{margin:0;font-size:1.55rem;line-height:1.15;color:#fff}
+.ewc-banner .sub{color:#dce9f7;font-size:.92rem;margin-top:.15rem}
+.ewc-banner .sub b{color:var(--gold)}
+.xp-pill{background:rgba(255,255,255,.12);border:1px solid rgba(253,181,21,.6);border-radius:10px;padding:.45rem .75rem;text-align:right;min-width:11rem}
+.xp-pill b{display:block;font-size:1.15rem;color:var(--gold)}
+.xp-pill span{font-size:.78rem;color:#dce9f7}
+
+/* ---------- blocks ---------- */
+main{max-width:1240px;margin:0 auto;padding:1rem 1rem 7rem}
+body.guide-open main{padding-bottom:60vh}
+section.block{display:none}
+section.block.active{display:block;animation:fade .25s}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+.bhead{display:flex;align-items:flex-end;gap:1rem;flex-wrap:wrap;margin-bottom:.5rem}
+.bhead h2.part-title{margin:0;font-size:1.75rem;color:var(--navy);line-height:1.15}
+.chip{display:inline-block;background:var(--navy);color:#fff;border-radius:999px;padding:.1rem .65rem;font-size:.8rem;font-weight:600}
+.chip.gold{background:var(--gold);color:var(--navy-d)}
+.chip.green{background:var(--green);color:#fff}
+.kicker{color:var(--muted);margin:.15rem 0 .8rem;font-size:1.03rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem}
+.grid2>*,.grid3>*{min-width:0}
+.tgrid-term{grid-template-columns:minmax(0,1fr) minmax(0,1.3fr)}
+@media (max-width:900px){.grid2,.grid3,.tgrid-term{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.9rem 1.1rem;margin-bottom:1rem}
+.card h2{margin:.1rem 0 .5rem;font-size:1.25rem;color:var(--navy)}
+.card h3{margin:.6rem 0 .3rem;font-size:1.05rem}
+.card p{margin:.35rem 0}
+.analogy{background:var(--gold-l);border:1px solid #f1d88a;border-left:6px solid var(--gold);border-radius:10px;padding:.7rem 1rem;margin:.6rem 0}
+.analogy b.t{display:block;color:#7a5600;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em}
+.key{background:var(--blue-l);border-left:6px solid var(--navy);border-radius:10px;padding:.6rem 1rem;margin:.6rem 0}
+.warn{background:var(--red-l);border-left:6px solid var(--crimson);border-radius:10px;padding:.55rem .9rem;margin:.6rem 0}
+.task{border:2px solid var(--green);background:linear-gradient(#fff,#fbfffc)}
+.task h2{color:var(--green)}
+.task h2::before{content:"💻 ";}
+.challenge{border:2px dashed var(--crimson)}
+.challenge h2{color:var(--crimson)}
+.challenge h2::before{content:"🎯 "}
+.btn{background:var(--navy);color:#fff;border:0;border-radius:8px;padding:.35rem .8rem;font-size:.9rem;margin:.15rem .2rem .15rem 0;transition:transform .1s,filter .15s}
+.btn:hover{filter:brightness(1.12)}
+.btn:active{transform:scale(.98)}
+.btn.alt{background:#fff;color:var(--navy);border:1px solid var(--navy)}
+.btn.green{background:var(--green)}
+.btn.gold{background:var(--gold);color:var(--navy-d);font-weight:700}
+.btn.red{background:var(--crimson)}
+.btn.sm{padding:.22rem .55rem;font-size:.82rem}
+.btn:disabled{opacity:.4;cursor:not-allowed;filter:none}
+.hidden{display:none!important}
+.reveal-box{background:var(--green-l);border:1px solid #a8d5b5;border-radius:10px;padding:.6rem 1rem;margin:.5rem 0}
+.small{font-size:.86rem;color:var(--muted)}
+.panel-t{font-size:.75rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:.5rem}
+pre.out{font-family:var(--mono);font-size:.88rem;background:var(--navy-d);color:#e9f0f8;border-radius:10px;padding:.6rem .8rem;white-space:pre-wrap;margin:.3rem 0}
+table.keys{border-collapse:collapse;width:100%;font-size:.92rem}
+table.keys td,table.keys th{border-bottom:1px solid var(--line);padding:.25rem .4rem;text-align:left;vertical-align:top}
+table.keys th{color:var(--muted);font-size:.78rem;text-transform:uppercase}
+
+/* ---------- interactive rig / presets ---------- */
+.rig-box{background:var(--blue-l);border:1px solid var(--blue-m);border-radius:10px;padding:.65rem .85rem;margin:.5rem 0}
+.preset-row{display:flex;gap:.35rem;flex-wrap:wrap;margin:.4rem 0}
+.preset-chip{background:#fff;border:1px solid var(--navy);color:var(--navy);border-radius:999px;padding:.18rem .65rem;font-size:.8rem;font-weight:600}
+.preset-chip:hover,.preset-chip.active{background:var(--navy);color:#fff}
+.sim-strip{display:flex;align-items:center;justify-content:space-between;gap:.6rem;flex-wrap:wrap;background:#eef5fa;border:1px solid #c9dced;border-radius:10px;padding:.45rem .7rem;margin-top:.5rem;font-size:.86rem}
+.status-pill{display:inline-flex;align-items:center;gap:.3rem;padding:.15rem .55rem;border-radius:999px;font-weight:700;font-size:.78rem;background:#dde6ef;color:var(--navy-d)}
+.status-pill.pass{background:var(--green-l);color:var(--green);border:1px solid #9ad3ab}
+.status-pill.warn{background:var(--gold-l);color:#7a5600;border:1px solid #ecc96b}
+.status-pill.fail{background:var(--red-l);color:var(--crimson);border:1px solid #f0a8b4}
+
+/* ---------- anatomy interactive ---------- */
+.pr-big{font-family:var(--mono);font-size:1.15rem;background:#1e2329;color:#e6e6e6;border-radius:10px;padding:.7rem .9rem;margin:.4rem 0;user-select:none;line-height:1.6}
+.pr-big span[data-p]{cursor:pointer;border-radius:4px;padding:.1em .2em;transition:background .15s}
+.pr-big span[data-p]:hover,.pr-big span.on{outline:2px solid var(--gold);background:rgba(253,181,21,.15)}
+.pr-big .v{color:#729fcf;font-weight:700}
+.pr-big .s{color:#8ae234}
+.pr-big .k{color:#c678dd;font-weight:700}
+.pr-big .f{color:#e5c07b}
+.pr-say{background:var(--blue-l);border-radius:8px;padding:.55rem .8rem;min-height:3em}
+
+/* ---------- missions ---------- */
+ul.mission{list-style:none;padding:0;margin:.3rem 0}
+ul.mission li{position:relative;padding:.28rem .4rem .28rem 2rem;border-radius:8px;margin:.15rem 0}
+ul.mission li::before{content:"☐";position:absolute;left:.5rem;top:.25rem;color:var(--muted)}
+ul.mission li.ok{background:var(--green-l)}
+ul.mission li.ok::before{content:"✔";color:var(--green);font-weight:800}
+
+/* ---------- Python Sandbox IDE ---------- */
+.ide{background:#1e2329;color:#e6e6e6;border-radius:10px;overflow:hidden;display:flex;flex-direction:column;height:25rem;font-family:var(--mono);font-size:.88rem;box-shadow:0 4px 16px rgba(0,0,0,.18)}
+.ide-bar{display:flex;align-items:center;gap:.35rem;background:#2d333b;padding:.3rem .6rem;font-family:"Segoe UI",Arial,sans-serif;font-size:.8rem;color:#cdd5df}
+.ide-bar>span.dot{color:#ff5f56;font-size:.7rem}.ide-bar>span.dot+span.dot{color:#ffbd2e}.ide-bar>span.dot+span.dot+span.dot{color:#27c93f}
+.ide-bar b{flex:1;font-weight:600;margin-left:.3rem;font-family:var(--mono)}
+.ide-bar button{background:#3d4550;color:#e6e6e6;border:0;border-radius:5px;font-size:.76rem;padding:.15rem .5rem}
+.ide-bar button.run{background:var(--green);color:#fff;font-weight:700}
+.ide-bar button.run:hover{filter:brightness(1.1)}
+.ide-ed{display:flex;flex:1.25;min-height:0;border-bottom:1px solid #3d4550;position:relative}
+.ide-gut{width:2.6rem;background:#181c20;color:#636d83;text-align:right;padding:.4rem .4rem .4rem 0;user-select:none;line-height:1.45;overflow:hidden}
+.ide-ed textarea{flex:1;background:#1e2329;color:#f0f4f8;border:0;outline:0;resize:none;font:inherit;padding:.4rem .6rem;line-height:1.45;tab-size:4;white-space:pre;overflow:auto}
+.ide-out-hdr{background:#252b33;color:#9da5b4;font-family:"Segoe UI",Arial,sans-serif;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;padding:.15rem .6rem;display:flex;justify-content:space-between}
+.ide-out{flex:0.85;min-height:0;overflow:auto;padding:.4rem .65rem;background:#14181d;white-space:pre-wrap;word-break:break-word;line-height:1.4}
+.out-ok{color:#8ae234}.out-err{color:#ff6b6b}
+
+/* ---------- live memory / state visualizer ---------- */
+.zones{display:flex;gap:.5rem;align-items:stretch;margin:.5rem 0 0;flex-wrap:wrap;font-size:.88rem}
+.zones .zone{flex:1;min-width:7.5rem;border-radius:10px;padding:.4rem .55rem;border:2px solid var(--line);background:#fff}
+.zones .zone>b{display:block;font-size:.95rem}
+.zones .zone>span{display:block;font-size:.78rem;color:var(--muted);font-style:italic}
+.zones .z1{border-color:#9fb0c2;background:#f7f9fc}.zones .z3{border-color:var(--green);background:var(--green-l)}
+.vchip{display:inline-block;font-family:var(--mono);font-size:.8rem;border-radius:6px;padding:.1rem .45rem;margin:.25rem .2rem 0 0;border:1px solid var(--navy);background:#fff;color:var(--navy)}
+.vchip i{font-style:normal;color:#7a3e9d;font-size:.72rem}
+
+/* ---------- teaching layer ---------- */
+.twohats{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin:0 0 1rem}
+.twohats>div{border-radius:10px;padding:.5rem .8rem;background:var(--blue-l);border-left:6px solid var(--navy)}
+.twohats>div+div{background:var(--purple-l);border-left-color:var(--purple)}
+@media (max-width:900px){.twohats{grid-template-columns:1fr}}
+.teach{border:2px solid var(--purple);background:linear-gradient(#fff,var(--purple-l))}
+.teach h2{color:var(--purple)}
+.teach h2::before{content:"🍎 "}
+.tgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin:.4rem 0 .6rem}
+@media (max-width:1000px){.tgrid{grid-template-columns:1fr 1fr}}
+@media (max-width:600px){.tgrid{grid-template-columns:1fr}}
+.tgrid>div{background:#fff;border:1px solid #d9ccf5;border-radius:10px;padding:.5rem .7rem;font-size:.93rem}
+.tl{display:block;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--purple);margin-bottom:.2rem}
+.btn.purple{background:var(--purple)}
+.btn.purple.got{background:var(--green)}
+#tkBtn b{color:var(--gold)}
+#tkBtn.bump{animation:pop .6s}
+@keyframes pop{30%{background:var(--gold);transform:scale(1.15)}}
+ul.tklist{list-style:none;padding:0;margin:.3rem 0}
+ul.tklist li{padding:.3rem .5rem .3rem 2rem;position:relative;border-radius:8px;margin:.2rem 0;color:var(--muted)}
+ul.tklist li::before{content:"☐";position:absolute;left:.5rem}
+ul.tklist li.got{background:#fff;color:var(--ink);border:1px solid #d9ccf5}
+ul.tklist li.got::before{content:"🍎"}
+ul.tklist li button{font-size:.75rem;border:1px solid var(--purple);color:var(--purple);background:#fff;border-radius:6px;margin-left:.4rem}
+
+/* ---------- practice & quiz ---------- */
+.q{border:1px solid var(--line);border-radius:10px;padding:.6rem .8rem;margin:.5rem 0;background:#fff}
+.q .opts button{display:block;width:100%;text-align:left;border:1px solid #c5d0dc;background:#f9fbfd;border-radius:8px;padding:.35rem .6rem;margin:.25rem 0;font-size:.95rem}
+.q .opts button.ok{background:var(--green-l);border-color:var(--green)}
+.q .opts button.bad{background:var(--red-l);border-color:var(--crimson)}
+.q .opts button.sel{background:var(--navy);color:#fff;border-color:var(--navy);font-weight:600}
+.q .opts button:disabled{cursor:default}
+.q .opts button.sel.ok{background:var(--green);border-color:var(--green)}
+.q .opts button.sel.bad{background:var(--crimson);border-color:var(--crimson)}
+.pq .q pre{font-family:var(--mono);font-size:.84rem;background:#1e2329;color:#e6e6e6;border-radius:8px;padding:.45rem .65rem;white-space:pre-wrap;margin:.3rem 0}
+.pq .why{font-size:.88rem;background:var(--green-l);border-radius:8px;padding:.3rem .55rem;margin-top:.3rem}
+.pq .why.badw{background:var(--red-l)}
+.scorebig{text-align:center;border:3px solid var(--gold);border-radius:14px;background:linear-gradient(135deg,#fff,var(--gold-l));padding:.6rem;margin-top:.6rem}
+.scorebig b{display:block;font-size:2.6rem;color:var(--navy);line-height:1.1}
+.badge{text-align:center;border:3px solid var(--gold);border-radius:16px;padding:1rem;background:linear-gradient(135deg,#fff,var(--gold-l));margin-bottom:1rem}
+.badge .big{font-size:3rem}
+
+/* ---------- code log ---------- */
+table.clog{border-collapse:collapse;width:100%;font-size:.92rem}
+table.clog td,table.clog th{border-bottom:1px solid var(--line);padding:.25rem .4rem;vertical-align:middle;text-align:left}
+table.clog th{font-size:.75rem;color:var(--muted);text-transform:uppercase}
+table.clog td.c{font-family:var(--mono);font-weight:600;color:var(--navy);width:32%}
+table.clog input{width:100%;font:inherit;font-size:.9rem;padding:.2rem .4rem;border:1px solid #9fb0c2;border-radius:6px}
+table.clog input.has{border-color:var(--green);background:var(--green-l)}
+
+/* ---------- step bar ---------- */
+[data-step]{scroll-margin-top:6rem;transition:opacity .35s,filter .35s,box-shadow .25s}
+body.focus section.block.active [data-step]:not(.spot){opacity:.3;filter:grayscale(.7)}
+body.focus section.block.active [data-step]:not(.spot):hover{opacity:.85;filter:none}
+.spot{position:relative;animation:glow 1.8s ease-in-out infinite;border-color:var(--gold)!important}
+@keyframes glow{0%,100%{box-shadow:0 0 0 4px var(--gold),0 0 0 8px rgba(253,181,21,.35)}50%{box-shadow:0 0 0 4px var(--gold),0 0 0 18px rgba(253,181,21,0)}}
+.spot::before{content:attr(data-look);position:absolute;top:-.95rem;left:1rem;z-index:3;background:var(--gold);color:var(--navy-d);font-weight:800;font-size:.85rem;padding:.12rem .7rem;border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,.2);white-space:nowrap;max-width:calc(100% - 2rem);overflow:hidden;text-overflow:ellipsis}
+#stepbar{position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--navy-d);color:#fff;box-shadow:0 -6px 24px rgba(0,0,0,.25)}
+.sb-row{display:flex;align-items:center;gap:.6rem;padding:.4rem .7rem}
+.sb-row>button{background:var(--gold);color:var(--navy-d);border:0;border-radius:10px;font-size:1.3rem;font-weight:800;width:3rem;height:2.6rem;flex:0 0 auto}
+.sb-row>button:disabled{opacity:.3;cursor:not-allowed}
+.sb-row>button.sb-tool{width:auto;font-size:.85rem;padding:0 .7rem;background:#2c3e5a;color:#fff;border:1px solid #4a6286}
+.sb-row>button.sb-tool.on{background:#fff;color:var(--navy-d)}
+#guide{max-height:0;overflow:hidden;transition:max-height .35s ease;background:#14202f;border-bottom:1px solid #3d5373}
+body.guide-open #guide{max-height:52vh;overflow:auto}
+.g-head{padding:.6rem 1rem 0;font-size:1.05rem}
+.g-head b{color:var(--gold)}
+.g-cols{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:.7rem;padding:.6rem 1rem .9rem}
+@media (max-width:900px){.g-cols{grid-template-columns:1fr}}
+.g-col{border-radius:12px;padding:.55rem .8rem;color:var(--ink)}
+.g-col h4{margin:0 0 .3rem;font-size:.95rem;text-transform:uppercase;letter-spacing:.04em}
+.g-col ul{margin:0;padding-left:1.15rem}
+.g-col li{margin:.25rem 0;font-size:.95rem}
+.g-col ol{margin:0;padding-left:1.3rem}
+.g-col.say{background:#EEF5FA;border-left:6px solid var(--navy)} .g-col.say h4{color:var(--navy)}
+.g-col.do{background:var(--green-l);border-left:6px solid var(--green)} .g-col.do h4{color:var(--green)}
+.g-col.extra{background:var(--gold-l);border-left:6px solid var(--gold)} .g-col.extra h4{color:#7a5600}
+.g-col code{background:rgba(0,0,0,.06)}
+.sb-mid{flex:1;min-width:0}
+.sb-title{font-size:.95rem}
+.sb-title b{color:var(--gold)}
+.sb-chips{display:flex;gap:.3rem;flex-wrap:wrap;margin-top:.2rem}
+.sb-chips button{background:transparent;color:#cfe0f5;border:1px solid #3d5373;border-radius:999px;padding:.05rem .55rem;font-size:.78rem}
+.sb-chips button.done{color:#7ee08f;border-color:#2f6a45}
+.sb-chips button.done::before{content:"✓ "}
+.sb-chips button.on{background:#fff;color:var(--navy-d);border-color:#fff;font-weight:700}
+#admin{position:fixed;right:1rem;bottom:5rem;z-index:70;background:#fff;border:2px solid var(--crimson);border-radius:12px;padding:.7rem;display:flex;flex-direction:column;gap:.3rem;box-shadow:0 8px 30px rgba(0,0,0,.2)}
+#admin.hidden{display:none}
+@media print{#top,#stepbar,#admin{display:none} section.block{display:block!important;page-break-after:always}}
+</style>
+</head>
+<body>
+<div id="top">
+  <div class="ewc-mark-wrap" title="Ekurhuleni West TVET College">
+    <img src="https://www.ewc.edu.za/images/ewc-logo.JPG" alt="Ekurhuleni West TVET College Logo" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex';">
+    <span class="ewc-fallback"><span class="orb">EWC</span> EWC</span>
+  </div>
+  <div class="brand">EWC Python Lab <span>·</span> Basic Structures <span>·</span> Mechatronics &amp; IT</div>
+  <nav id="nav"></nav>
+  <div class="tb">
+    <button id="tkBtn" title="My teaching toolkit">🍎 Toolkit <b id="tkCount">0</b>/4</button>
+    <button id="fontDn" title="Smaller text">A−</button>
+    <button id="fontUp" title="Bigger text">A+</button>
+  </div>
+</div>
+<div id="progress"><i></i></div>
+
+<main>
+
+<div class="ewc-banner">
+  <div class="ewc-banner-left">
+    <div class="ewc-logo-box">
+      <img src="https://www.ewc.edu.za/images/ewc-logo.JPG" alt="Ekurhuleni West TVET College Official Logo" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex';">
+      <span class="ewc-fallback"><span class="orb">EWC</span> Ekurhuleni West TVET College</span>
+    </div>
+    <div>
+      <h1>Ekurhuleni West TVET College · Python Structures Lab</h1>
+      <div class="sub"><b>Empowering Beyond the Future</b> — Hands-on logic for lab telemetry, grading scripts &amp; automation</div>
+    </div>
+  </div>
+  <div class="xp-pill">
+    <b id="xpScore">0 / 17 Tasks</b>
+    <span id="xpHint">Run scripts &amp; solve checks to level up</span>
+  </div>
+</div>
+
+<!-- ================================================= PART 1: VARIABLES, TYPES & INPUT/OUTPUT -->
+<section class="block active" data-title="Variables &amp; Types">
+  <div class="bhead"><div><span class="chip">Part 1 of 4</span> <span class="chip gold">Lab Telemetry Scenario</span>
+  <h2 class="part-title">🐍 Basic Structures of Python: Variables &amp; Types</h2></div></div>
+  <p class="kicker">You are building the data &amp; grading engine for an <b>EWC Mechatronics &amp; Coding Lab</b> station. Across four parts you will work with <b>variables &amp; types</b>, <b>decisions (if/elif/else)</b>, <b>lists &amp; loops</b>, and <b>functions</b>—using a live Python runner, preset test stations, and a memory box viewer.</p>
+  <div class="twohats"><div><b>🎓 Learner mode</b> Inject realistic test presets, edit Python code, and watch Memory Boxes update live.</div><div><b>🍎 Educator / Self-Check mode</b> Each part ends with a purple <b>Mental Model</b> card highlighting core debugging &amp; teaching habits.</div></div>
+
+  <div class="card" data-step="Anatomy of Python">
+    <h2>Variables, data types &amp; case sensitivity</h2>
+    <div class="grid2">
+      <div>
+        <p>Python executes statements top to bottom. A <b>variable</b> binds a name to a value using <code>=</code>. Click each coloured segment below:</p>
+        <div class="pr-big" id="prBig"><span data-p="0" class="v">learner_name</span> = <span data-p="1" class="s">"Karabo"</span><br><span data-p="2" class="v">score</span> = <span data-p="2" class="f">84</span><br><span data-p="3" class="k">print</span>(<span data-p="3" class="v">learner_name</span>, <span data-p="3" class="v">score</span>)</div>
+        <div class="pr-say" id="prSay">👆 Click a coloured part of the Python snippet above.</div>
+        <div class="key"><b>Python is case-sensitive.</b> <code>score</code>, <code>Score</code> and <code>SCORE</code> are three separate names. Calling <code>Print()</code> with a capital <code>P</code> raises a <code>NameError</code>.</div>
+      </div>
+      <div>
+        <div class="analogy"><b class="t">Explain it like I'm 6</b>
+        A <b>variable</b> is a labelled storage box. You write a name on the outside (<code>score</code>) and place a value inside (<code>84</code>). Reassigning replaces what is inside that box.</div>
+        <table class="keys">
+          <tr><th>Type</th><th>Python Class</th><th>Example</th><th>Role</th></tr>
+          <tr><td>String</td><td><code>str</code></td><td><code>"Karabo"</code></td><td>Text enclosed in quotes</td></tr>
+          <tr><td>Integer</td><td><code>int</code></td><td><code>84</code></td><td>Whole numbers</td></tr>
+          <tr><td>Float</td><td><code>float</code></td><td><code>84.5</code></td><td>Decimal numbers</td></tr>
+          <tr><td>Boolean</td><td><code>bool</code></td><td><code>True</code> / <code>False</code></td><td>Logical conditions (capital T/F)</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card task" data-step="Predict, then run">
+    <h2>Mission 1: Variables, arithmetic &amp; f-strings</h2>
+    <div class="grid2 tgrid-term">
+      <div>
+        <div class="rig-box">
+          <b>⚡ Quick Learner Presets (click to test different scores):</b>
+          <div class="preset-row" data-presets="ide1">
+            <button type="button" class="preset-chip" data-code='# 1. Assign string and integer variables&#10;student = "Karabo"&#10;score = 84&#10;&#10;# 2. Compute percentage and print&#10;percent = round(score / 120 * 100, 1)&#10;print(f"{student}: {score} ({percent}%)")'>Karabo · 84/120</button>
+            <button type="button" class="preset-chip" data-code='# Test a high distinction run&#10;student = "Nolwazi"&#10;score = 114&#10;&#10;percent = round(score / 120 * 100, 1)&#10;print(f"{student}: {score} ({percent}%)")'>Nolwazi · 114/120</button>
+            <button type="button" class="preset-chip" data-code='# Test string vs number trap ("84" + 10 errors!)&#10;student = "Austin"&#10;score = 60&#10;bonus = 12&#10;&#10;total_pts = score + bonus&#10;percent = round(total_pts / 120 * 100, 1)&#10;print(f"{student}: {total_pts}/120 ({percent}%)")'>Austin · 60+12</button>
+          </div>
+          <span class="small">Tip: Predict the percentage in your head before pressing ▶ Run!</span>
+        </div>
+        <p><b>Predict the output before pressing ▶ Run</b> (or <kbd>Ctrl</kbd>+<kbd>Enter</kbd>). Complete each item:</p>
+        <ul class="mission" id="m1">
+          <li data-m="str">Assign a string variable (e.g. <code>student = "Karabo"</code>)</li>
+          <li data-m="int">Assign an integer variable (e.g. <code>score = 84</code>)</li>
+          <li data-m="pct">Compute a percentage or average using <code>/</code> (e.g. <code>percent = round(score / 120 * 100, 1)</code>)</li>
+          <li data-m="pr">Print output using <code>print(...)</code></li>
+        </ul>
+        <div class="reveal-box hidden" id="m1done">✔ <b>Mission 1 complete!</b> Check the <b>Memory Boxes</b> panel under the editor to inspect every variable's runtime value and type.</div>
+        <p class="small">f-strings like <code>f"{student}: {percent}%"</code> evaluate expressions inside <code>{ }</code> directly into strings.</p>
+      </div>
+      <div>
+        <div class="idehost" data-ide="ide1"></div>
+        <div class="zones" data-mem="ide1"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card challenge" data-step="Types &amp; operators check">
+    <h2>Quick check: Variables &amp; types</h2>
+    <p>Predict the answer in your head first, then click an option.</p>
+    <div class="pq" id="pq1"></div>
+  </div>
+
+  <div class="card teach" data-step="🍎 Mental model: Predict, then run" data-tk="predict">
+    <h2>How to master this: Predict, then run</h2>
+    <div class="tgrid">
+      <div><b class="tl">The habit</b>State or write the expected output and variable values <i>before</i> clicking Run.</div>
+      <div><b class="tl">Why it works</b>Guessing after seeing output creates false confidence; predicting exposes gaps in your mental model immediately.</div>
+      <div><b class="tl">In class</b>Have learners write their prediction on a sticky note or mini-whiteboard before running the script.</div>
+      <div><b class="tl">Watch out for</b><code>=</code> (assigns a value) vs <code>==</code> (compares equality) and <code>"84"</code> (text) vs <code>84</code> (number).</div>
+    </div>
+    <button class="btn purple tkadd">＋ Add to my toolkit</button>
+  </div>
+</section>
+
+<!-- ================================================= PART 2: SELECTION (IF / ELIF / ELSE) -->
+<section class="block" data-title="Decisions (if / else)">
+  <div class="bhead"><div><span class="chip">Part 2 of 4</span> <span class="chip gold">Threshold Logic</span>
+  <h2 class="part-title">🔀 Selection Structures: if, elif, else</h2></div></div>
+  <p class="kicker">A quiz grading engine—or a sensor alarm on a PLC/robot cell—must react differently to distinctions, passes, and re-attempts. <b>Selection structures</b> control which code block runs when a condition is <code>True</code> or <code>False</code>.</p>
+
+  <div class="card" data-step="Indentation &amp; branches">
+    <h2>Conditions, colons &amp; 4-space indentation</h2>
+    <div class="grid2">
+      <div>
+        <p>Python uses a <b>colon (<code>:</code>)</b> to open a block and <b>4-space indentation</b> to group statements inside it. In an <code>if / elif / else</code> ladder, Python tests conditions top-to-bottom and runs the <b>first</b> true branch.</p>
+        <table class="keys">
+          <tr><th>Operator</th><th>Meaning</th><th>Example</th></tr>
+          <tr><td><code>&gt;=</code> / <code>&lt;=</code></td><td>At least / At most</td><td><code>score &gt;= 50</code></td></tr>
+          <tr><td><code>==</code> / <code>!=</code></td><td>Equal / Not equal</td><td><code>grade != "Fail"</code></td></tr>
+          <tr><td><code>and</code> / <code>or</code> / <code>not</code></td><td>Compound boolean logic</td><td><code>score &gt;= 80 and portfolio_ok</code></td></tr>
+        </table>
+        <div class="warn">⚠ <b>Watch indentation carefully.</b> Unindented lines run unconditionally; inconsistent spacing triggers an <code>IndentationError</code>.</div>
+      </div>
+      <div>
+        <p class="panel-t">Example: Tiered grade assignment</p>
+        <pre class="out">score = 82
+
+if score >= 80:
+    grade = "Distinction"
+elif score >= 50:
+    grade = "Pass"
+else:
+    grade = "Fail"
+
+print(grade)</pre>
+        <div class="analogy"><b class="t">Explain it like I'm 6</b>
+        Imagine a row of doors with signs on them. You check the first door: if the sign matches, you walk through and ignore the rest. Only if no earlier door opened do you take the <code>else</code> door.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card task" data-step="Build the grade classifier">
+    <h2>Mission 2: Write an if / elif / else classifier</h2>
+    <div class="grid2 tgrid-term">
+      <div>
+        <div class="rig-box">
+          <b>🎯 Boundary Stress-Tester (click to load boundary scores):</b>
+          <div class="preset-row" data-presets="ide2">
+            <button type="button" class="preset-chip" data-code='score = 80&#10;&#10;if score >= 80:&#10;    grade = "Distinction"&#10;elif score >= 50:&#10;    grade = "Pass"&#10;else:&#10;    grade = "Fail"&#10;&#10;print(grade)'>On 80 (Distinction)</button>
+            <button type="button" class="preset-chip" data-code='score = 79&#10;&#10;if score >= 80:&#10;    grade = "Distinction"&#10;elif score >= 50:&#10;    grade = "Pass"&#10;else:&#10;    grade = "Fail"&#10;&#10;print(grade)'>Below 80 (79)</button>
+            <button type="button" class="preset-chip" data-code='score = 50&#10;&#10;if score >= 80:&#10;    grade = "Distinction"&#10;elif score >= 50:&#10;    grade = "Pass"&#10;else:&#10;    grade = "Fail"&#10;&#10;print(grade)'>On 50 (Pass)</button>
+            <button type="button" class="preset-chip" data-code='score = 49&#10;&#10;if score >= 80:&#10;    grade = "Distinction"&#10;elif score >= 50:&#10;    grade = "Pass"&#10;else:&#10;    grade = "Fail"&#10;&#10;print(grade)'>Below 50 (49)</button>
+          </div>
+          <div class="sim-strip">
+            <span>Last evaluated <code>grade</code>:</span>
+            <span class="status-pill" id="m2Badge">Not run yet</span>
+          </div>
+        </div>
+        <p>Complete the grading script so it classifies <code>score</code> into <code>"Distinction"</code> (80+), <code>"Pass"</code> (50–79), or <code>"Fail"</code> (&lt;50):</p>
+        <ul class="mission" id="m2">
+          <li data-m="var">Define numeric variable <code>score</code></li>
+          <li data-m="if">Include an <code>if score &gt;= 80:</code> branch</li>
+          <li data-m="elif">Include an <code>elif score &gt;= 50:</code> branch</li>
+          <li data-m="else">Include an <code>else:</code> fallback branch</li>
+          <li data-m="pr">Print <code>grade</code> to the console</li>
+        </ul>
+        <div class="reveal-box hidden" id="m2done">✔ <b>Mission 2 complete!</b> Test <code>score = 80</code>, <code>score = 50</code>, and <code>score = 49</code> to verify every boundary.</div>
+      </div>
+      <div>
+        <div class="idehost" data-ide="ide2"></div>
+        <div class="zones" data-mem="ide2"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-step="Structure notes log">
+    <h2>My control-flow notes</h2>
+    <p>Write a short note explaining <b>when and why</b> you use each structure in your own words:</p>
+    <div id="clog"></div>
+    <p><button class="btn" id="clogDl">⬇ Download my notes (.txt)</button> <span class="small" id="clogCount"></span></p>
+  </div>
+
+  <div class="card teach" data-step="🍎 Mental model: Boundary testing" data-tk="boundary">
+    <h2>How to master this: Boundary value testing</h2>
+    <div class="tgrid">
+      <div><b class="tl">The habit</b>Test right <b>on</b> the boundary (<code>50</code>, <code>80</code>), one below (<code>49</code>, <code>79</code>), and one above (<code>51</code>, <code>81</code>).</div>
+      <div><b class="tl">Why it works</b>Middle values like <code>65</code> or <code>90</code> hide <code>&gt;</code> vs <code>&gt;=</code> mistakes and misordered <code>if/elif</code> branches.</div>
+      <div><b class="tl">Branch order</b>Put stricter/higher thresholds first when using <code>&gt;=</code> so higher scores are not caught early by a lower threshold.</div>
+      <div><b class="tl">Watch out for</b>Using separate <code>if</code> blocks when you mean mutually exclusive alternatives (<code>if / elif / else</code>).</div>
+    </div>
+    <button class="btn purple tkadd">＋ Add to my toolkit</button>
+  </div>
+</section>
+
+<!-- ================================================= PART 3: LISTS & LOOPS -->
+<section class="block" data-title="Lists &amp; Loops">
+  <div class="bhead"><div><span class="chip">Part 3 of 4</span> <span class="chip gold">Batch Processing</span>
+  <h2 class="part-title">🔁 Lists &amp; Loops: Iteration Structures</h2></div></div>
+  <p class="kicker">When handling a whole batch of quiz scores or sensor readings, <b>lists</b> group items together and <b>loops</b> repeat operations cleanly without copy-pasting lines.</p>
+
+  <div class="card" data-step="Lists &amp; loop structures">
+    <h2>Lists, indexing &amp; for / while loops</h2>
+    <div class="grid2">
+      <div>
+        <p>A <b>list</b> stores an ordered collection inside square brackets <code>[ ]</code>. Its first element is at index <code>0</code>.</p>
+        <pre class="out">marks = [62, 88, 45, 91]
+# Index:   0   1   2   3
+print(marks[0])    # 62
+print(len(marks))  # 4
+marks.append(75)   # adds 75 at the end</pre>
+        <div class="analogy"><b class="t">Explain it like I'm 6</b>
+        A <b>list</b> is a row of numbered lockers starting at Locker 0. A <b>for loop</b> opens each locker in order and runs your instructions on whatever is inside.</div>
+      </div>
+      <div>
+        <table class="keys">
+          <tr><th>Structure</th><th>Best when…</th><th>Pattern</th></tr>
+          <tr><td><code>for x in seq:</code></td><td>You have a list, string, or <code>range()</code></td><td><code>for m in marks:</code></td></tr>
+          <tr><td><code>for i in range(n):</code></td><td>You want to repeat <code>n</code> times (<code>0</code> to <code>n-1</code>)</td><td><code>for i in range(3):</code></td></tr>
+          <tr><td><code>while cond:</code></td><td>You repeat until a condition becomes <code>False</code></td><td><code>while n &gt; 0:</code></td></tr>
+          <tr><td>Accumulator</td><td>You build a running sum or counter</td><td><code>total += m</code></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card task" data-step="Loop through marks">
+    <h2>Mission 3: Accumulate a total &amp; average with a loop</h2>
+    <div class="grid2 tgrid-term">
+      <div>
+        <div class="rig-box">
+          <b>📊 Batch Datasets (load &amp; fix the loop):</b>
+          <div class="preset-row" data-presets="ide3">
+            <button type="button" class="preset-chip" data-code='marks = [55, 84, 42, 91, 76]&#10;total = 0&#10;&#10;# Accumulate marks inside the loop&#10;for m in marks:&#10;    total += m&#10;&#10;print("Total:", total)&#10;print("Average:", round(total / len(marks), 1))'>5-Score Batch</button>
+            <button type="button" class="preset-chip" data-code='marks = [95, 88, 92, 100]&#10;total = 0&#10;&#10;for m in marks:&#10;    total += m&#10;&#10;print("Total:", total)&#10;print("Average:", round(total / len(marks), 1))'>Distinction Batch</button>
+          </div>
+          <span class="small">In the starter code, replace <code>pass</code> with <code>total += m</code> and run!</span>
+        </div>
+        <p>Use a <code>for</code> loop and an accumulator variable to sum <code>marks</code> and print the total and average:</p>
+        <ul class="mission" id="m3">
+          <li data-m="list">Define a list <code>marks</code> with at least 3 numbers</li>
+          <li data-m="acc">Initialise a numeric accumulator (e.g. <code>total = 0</code>) before the loop</li>
+          <li data-m="for">Write a <code>for ... in marks:</code> loop</li>
+          <li data-m="add">Update the accumulator inside the loop body</li>
+          <li data-m="pr">Print the accumulated total after the loop</li>
+        </ul>
+        <div class="reveal-box hidden" id="m3done">✔ <b>Mission 3 complete!</b> Keeping <code>print()</code> unindented outside the loop prints the final summary once after all items are processed.</div>
+      </div>
+      <div>
+        <div class="idehost" data-ide="ide3"></div>
+        <div class="zones" data-mem="ide3"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card challenge" data-step="Trace the loop">
+    <h2>Quick check: Tracing lists &amp; loops</h2>
+    <p>Trace each snippet carefully before selecting your answer.</p>
+    <div class="pq" id="pq3"></div>
+  </div>
+
+  <div class="card teach" data-step="🍎 Mental model: Trace tables" data-tk="tracetable">
+    <h2>How to master this: Trace tables &amp; accumulators</h2>
+    <div class="tgrid">
+      <div><b class="tl">The habit</b>Write a column for each variable and record its value on every single pass of the loop.</div>
+      <div><b class="tl">Why it works</b>Slowing down execution makes hidden resets or off-by-one counts immediately obvious.</div>
+      <div><b class="tl">Accumulator rule</b>Set <code>total = 0</code> <b>outside</b> (before) the loop; put <code>total += item</code> <b>inside</b> the loop.</div>
+      <div><b class="tl">Watch out for</b><code>while</code> loops that never change the condition variable (the sandbox guards against infinite loops at 500 steps).</div>
+    </div>
+    <button class="btn purple tkadd">＋ Add to my toolkit</button>
+  </div>
+</section>
+
+<!-- ================================================= PART 4: FUNCTIONS, ERRORS & EXIT TICKET -->
+<section class="block" data-title="Functions &amp; Quiz">
+  <div class="bhead"><div><span class="chip">Part 4 of 4</span> <span class="chip gold">Capstone &amp; Exit Ticket</span>
+  <h2 class="part-title">🧩 Functions, Error Clinic &amp; Exit Ticket</h2></div></div>
+  <p class="kicker">Wrap logic into a reusable <b>function</b> with <code>def</code> and <code>return</code>, practice reading error messages, and complete the exit ticket.</p>
+
+  <div class="card task" data-step="Define and call a function">
+    <h2>Mission 4: Reusable function with return</h2>
+    <div class="grid2 tgrid-term">
+      <div>
+        <div class="rig-box">
+          <b>🧪 Multi-Case Function Runner:</b>
+          <div class="preset-row" data-presets="ide4">
+            <button type="button" class="preset-chip" data-code='# Define a function that returns status&#10;def get_status(mark):&#10;    if mark >= 50:&#10;        return "Pass"&#10;    return "Fail"&#10;&#10;# Call get_status() multiple times&#10;print("72 ->", get_status(72))&#10;print("48 ->", get_status(48))&#10;print("50 ->", get_status(50))'>Run 3 Test Cases</button>
+            <button type="button" class="preset-chip" data-code='# Upgrade get_status to include Distinction (80+)&#10;def get_status(mark):&#10;    if mark >= 80:&#10;        return "Distinction"&#10;    if mark >= 50:&#10;        return "Pass"&#10;    return "Fail"&#10;&#10;print("85 ->", get_status(85))&#10;print("60 ->", get_status(60))&#10;print("35 ->", get_status(35))'>3-Tier Function</button>
+          </div>
+          <span class="small">Notice how one <code>def</code> block can serve dozens of test inputs cleanly.</span>
+        </div>
+        <p>A <b>function</b> groups a task under a name with <code>def</code>, accepts <b>parameters</b>, and sends a value back with <code>return</code>.</p>
+        <ul class="mission" id="m4">
+          <li data-m="def">Define <code>def get_status(mark):</code></li>
+          <li data-m="ret">Use <code>return</code> inside the function</li>
+          <li data-m="call">Call <code>get_status(...)</code> at least twice and print the results</li>
+        </ul>
+        <div class="reveal-box hidden" id="m4done">✔ <b>Mission 4 complete!</b> A function runs only when called—and <code>return</code> hands the value back to the caller.</div>
+      </div>
+      <div>
+        <div class="idehost" data-ide="ide4"></div>
+        <div class="zones" data-mem="ide4"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card challenge" data-step="Error clinic">
+    <h2>Error clinic: Spot what went wrong</h2>
+    <p>Read each broken snippet and identify the exact issue:</p>
+    <div class="pq" id="pq4"></div>
+  </div>
+
+  <div class="card teach" data-step="🍎 Mental model: Read errors bottom-up" data-tk="readerror">
+    <h2>How to master this: Read errors from the bottom</h2>
+    <div class="tgrid">
+      <div><b class="tl">The habit</b>Read the final line of an error first to see the exception type and message, then check the line number.</div>
+      <div><b class="tl">Why it works</b>Turning red error text into a concrete clue removes panic and speeds up fixing.</div>
+      <div><b class="tl">Line-above check</b>A <code>SyntaxError</code> on one line is often caused by an unclosed bracket or missing colon on the line above.</div>
+      <div><b class="tl">Watch out for</b>Forgetting <code>return</code> in a function—without it, the function returns <code>None</code>.</div>
+    </div>
+    <button class="btn purple tkadd">＋ Add to my toolkit</button>
+  </div>
+
+  <div class="grid2">
+    <div class="card challenge" data-step="Exit ticket: lock in || Show the answers">
+      <h2>Challenge: Exit ticket</h2>
+      <p>Select one option per question. Once you press <b>🔒 Lock in</b>, your score is saved.<br>
+      <span class="small">⚠ One attempt only in this browser.</span></p>
+      <div id="quiz"></div>
+      <div id="quizBar" style="margin-top:.6rem"><button class="btn red" id="quizLock" disabled>🔒 Lock in my answers</button> <span class="small" id="quizLeft"></span></div>
+      <div id="quizResult" class="hidden"></div>
+    </div>
+    <div>
+      <div class="badge hidden" id="badge"><div class="big">🐍🏆</div><h2 style="margin:.2rem 0">EWC Python Structures Complete</h2><p id="badgeTxt"></p></div>
+      <div class="card teach" data-step="My evidence &amp; toolkit">
+        <h2>My evidence &amp; toolkit</h2>
+        <p>Export your structure notes and sandbox scripts into one <code>.txt</code> summary:</p>
+        <p><button class="btn" id="evDl">⬇ Download my evidence (.txt)</button></p>
+        <ul class="tklist" id="tkList"></ul>
+        <p class="small"><button class="btn alt" id="resetAll">↺ Start over</button> resets sandboxes, checkmarks, and notes (keeps a locked exit ticket).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="stepbar">
+  <div id="guide">
+    <div class="g-head" id="gHead"></div>
+    <div class="g-cols">
+      <div class="g-col say"><h4>🎤 Key Concept</h4><ul id="gSay"></ul></div>
+      <div class="g-col do"><h4>✅ Do Now</h4><ol id="gDo"></ol></div>
+      <div class="g-col extra"><h4>📚 Tip</h4><ul id="gExtra"></ul></div>
+    </div>
+  </div>
+  <div class="sb-row">
+    <button id="prevB" title="Previous step (←)">◀</button>
+    <div class="sb-mid"><div class="sb-title" id="sbTitle"></div><div class="sb-chips" id="sbChips"></div></div>
+    <button class="sb-tool" id="focusBtn" title="Spotlight current step">🔦 Focus</button>
+    <button class="sb-tool" id="guideBtn" title="Toggle step guide (↑ / ↓)">▲ Guide</button>
+    <button id="nextB" title="Next step (→)">▶</button>
+  </div>
+</div>
+<div id="admin" class="hidden">
+  <b>Reset challenge (this browser)</b>
+  <button class="btn alt" id="quizReset">Reset exit-ticket challenge</button>
+  <button class="btn alt" id="adminClose">Close</button>
+</div>
+</main>
+
+<script>
+/* Self-contained Python Basics Runner for Basic Structures Lab */
+const PYSIM = (function(){
+"use strict";
+
+function isIdent(s){ return /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(s); }
+
+function splitArgs(str){
+  const out=[]; let cur="", q=null, depth=0;
+  for(let i=0;i<str.length;i++){
+    const c=str[i];
+    if(q){ cur+=c; if(c===q && str[i-1]!=="\\") q=null; continue; }
+    if(c==='"'||c==="'"){ q=c; cur+=c; continue; }
+    if(c==="("||c==="["||c==="{") depth++;
+    if(c===")"||c==="]"||c==="}") depth--;
+    if(c==="," && depth===0){ out.push(cur.trim()); cur=""; continue; }
+    cur+=c;
+  }
+  if(cur.trim()!=="") out.push(cur.trim());
+  return out;
+}
+
+function splitTopOp(expr, ops){
+  let q=null, depth=0;
+  for(let i=expr.length-1;i>=0;i--){
+    const c=expr[i];
+    if(q){ if(c===q && expr[i-1]!=="\\") q=null; continue; }
+    if(c==='"'||c==="'"){ q=c; continue; }
+    if(c===")"||c==="]"||c==="}") depth++;
+    if(c==="("||c==="["||c==="{") depth--;
+    if(depth!==0) continue;
+    for(const op of ops){
+      if(expr.slice(i,i+op.length)===op){
+        if((op==="+"||op==="-") && i===0) continue;
+        if((op==="+"||op==="-") && /[+\-*/%(<>=,]\s*$/.test(expr.slice(0,i))) continue;
+        if((op==="<"||op===">") && (expr[i+1]==="=" || expr[i-1]==="=")) continue;
+        if(op==="*" && (expr[i+1]==="*" || expr[i-1]==="*")) continue;
+        if(op==="/" && (expr[i+1]==="/" || expr[i-1]==="/")) continue;
+        if((op===" and "||op===" or ") && i===0) continue;
+        return [expr.slice(0,i).trim(), op.trim(), expr.slice(i+op.length).trim()];
+      }
+    }
+  }
+  return null;
+}
+
+function stripOuterParens(s){
+  s=s.trim();
+  while(s.startsWith("(") && s.endsWith(")")){
+    let q=null, depth=0, ok=true;
+    for(let i=0;i<s.length;i++){
+      const c=s[i];
+      if(q){ if(c===q && s[i-1]!=="\\") q=null; continue; }
+      if(c==='"'||c==="'"){ q=c; continue; }
+      if(c==="(") depth++;
+      if(c===")") depth--;
+      if(depth===0 && i<s.length-1){ ok=false; break; }
+    }
+    if(ok) s=s.slice(1,-1).trim(); else break;
+  }
+  return s;
+}
+
+function pyType(v){
+  if(v===null||v===undefined) return "NoneType";
+  if(typeof v==="boolean") return "bool";
+  if(typeof v==="number") return Number.isInteger(v)?"int":"float";
+  if(typeof v==="string") return "str";
+  if(Array.isArray(v)) return "list";
+  return "object";
+}
+
+function pyStr(v){
+  if(v===null||v===undefined) return "None";
+  if(typeof v==="boolean") return v?"True":"False";
+  if(Array.isArray(v)) return "["+v.map(x=>typeof x==="string"?"'"+x+"'":pyStr(x)).join(", ")+"]";
+  return String(v);
+}
+
+function evalExpr(raw, env, funcs, outBuf, lineNo){
+  const expr = stripOuterParens(raw);
+  if(expr==="") throw new Error("Line "+lineNo+": SyntaxError: expected expression");
+  if(expr==="True") return true;
+  if(expr==="False") return false;
+  if(expr==="None") return null;
+
+  if((expr.startsWith('f"') && expr.endsWith('"')) || (expr.startsWith("f'") && expr.endsWith("'"))){
+    const inner=expr.slice(2,-1);
+    return inner.replace(/\{([^}]+)\}/g,(_,code)=>{
+      const val=evalExpr(code,env,funcs,outBuf,lineNo);
+      return pyStr(val);
+    });
+  }
+
+  if((expr.startsWith('"') && expr.endsWith('"')) || (expr.startsWith("'") && expr.endsWith("'"))){
+    const q=expr[0];
+    let ok=true;
+    for(let i=1;i<expr.length-1;i++){ if(expr[i]===q && expr[i-1]!=="\\"){ ok=false; break; } }
+    if(ok) return expr.slice(1,-1).replace(/\\n/g,"\n").replace(/\\t/g,"\t").replace(/\\"/g,'"').replace(/\\'/g,"'");
+  }
+
+  if(expr.startsWith("[") && expr.endsWith("]")){
+    let q=null, depth=0, single=true;
+    for(let i=0;i<expr.length;i++){
+      const c=expr[i];
+      if(q){ if(c===q && expr[i-1]!=="\\") q=null; continue; }
+      if(c==='"'||c==="'"){ q=c; continue; }
+      if(c==="[") depth++;
+      if(c==="]") depth--;
+      if(depth===0 && i<expr.length-1){ single=false; break; }
+    }
+    if(single){
+      const inner=expr.slice(1,-1).trim();
+      if(!inner) return [];
+      return splitArgs(inner).map(a=>evalExpr(a,env,funcs,outBuf,lineNo));
+    }
+  }
+
+  let sp = splitTopOp(expr, [" or "]);
+  if(sp) return Boolean(evalExpr(sp[0],env,funcs,outBuf,lineNo)) || Boolean(evalExpr(sp[2],env,funcs,outBuf,lineNo));
+  sp = splitTopOp(expr, [" and "]);
+  if(sp) return Boolean(evalExpr(sp[0],env,funcs,outBuf,lineNo)) && Boolean(evalExpr(sp[2],env,funcs,outBuf,lineNo));
+  if(expr.startsWith("not ")) return !Boolean(evalExpr(expr.slice(4),env,funcs,outBuf,lineNo));
+
+  sp = splitTopOp(expr, ["==","!=","<=",">=","<",">"]);
+  if(sp){
+    const L=evalExpr(sp[0],env,funcs,outBuf,lineNo), R=evalExpr(sp[2],env,funcs,outBuf,lineNo);
+    switch(sp[1]){
+      case "==": return L===R;
+      case "!=": return L!==R;
+      case "<=": return L<=R;
+      case ">=": return L>=R;
+      case "<":  return L<R;
+      case ">":  return L>R;
+    }
+  }
+
+  sp = splitTopOp(expr, ["+","-"]);
+  if(sp){
+    const L=evalExpr(sp[0],env,funcs,outBuf,lineNo), R=evalExpr(sp[2],env,funcs,outBuf,lineNo);
+    if(sp[1]==="+"){
+      if(typeof L==="string" && typeof R==="string") return L+R;
+      if(Array.isArray(L) && Array.isArray(R)) return [...L,...R];
+      if(typeof L==="number" && typeof R==="number") return L+R;
+      throw new Error("Line "+lineNo+": TypeError: unsupported operand type(s) for +: '"+pyType(L)+"' and '"+pyType(R)+"'");
+    }
+    if(typeof L!=="number"||typeof R!=="number") throw new Error("Line "+lineNo+": TypeError: unsupported operand type(s) for -");
+    return L-R;
+  }
+
+  sp = splitTopOp(expr, ["//","*","/","%"]);
+  if(sp){
+    const L=evalExpr(sp[0],env,funcs,outBuf,lineNo), R=evalExpr(sp[2],env,funcs,outBuf,lineNo);
+    if(sp[1]==="*" && typeof L==="string" && typeof R==="number") return L.repeat(Math.max(0,R));
+    if(typeof L!=="number"||typeof R!=="number") throw new Error("Line "+lineNo+": TypeError: unsupported operand type(s) for "+sp[1]);
+    if((sp[1]==="/"||sp[1]==="//"||sp[1]==="%") && R===0) throw new Error("Line "+lineNo+": ZeroDivisionError: division by zero");
+    if(sp[1]==="*") return L*R;
+    if(sp[1]==="/") return L/R;
+    if(sp[1]==="//") return Math.floor(L/R);
+    if(sp[1]==="%") return L%R;
+  }
+
+  sp = splitTopOp(expr, ["**"]);
+  if(sp){
+    const L=evalExpr(sp[0],env,funcs,outBuf,lineNo), R=evalExpr(sp[2],env,funcs,outBuf,lineNo);
+    return Math.pow(L,R);
+  }
+
+  if(expr.startsWith("-")) return -evalExpr(expr.slice(1),env,funcs,outBuf,lineNo);
+  if(/^-?\d+(\.\d+)?$/.test(expr)) return Number(expr);
+
+  const idxM = expr.match(/^([a-zA-Z_][a-zA-Z0-9_]*)\[(.+)\]$/);
+  if(idxM){
+    const target = evalExpr(idxM[1],env,funcs,outBuf,lineNo);
+    const idx = evalExpr(idxM[2],env,funcs,outBuf,lineNo);
+    if(!Array.isArray(target) && typeof target!=="string") throw new Error("Line "+lineNo+": TypeError: object is not subscriptable");
+    const realIdx = idx < 0 ? target.length + idx : idx;
+    if(realIdx < 0 || realIdx >= target.length) throw new Error("Line "+lineNo+": IndexError: list index out of range");
+    return target[realIdx];
+  }
+
+  const methM = expr.match(/^([a-zA-Z_][a-zA-Z0-9_]*)\.([a-zA-Z_][a-zA-Z0-9_]*)\((.*)\)$/);
+  if(methM){
+    const obj = evalExpr(methM[1],env,funcs,outBuf,lineNo);
+    const mName = methM[2];
+    const args = methM[3].trim()==="" ? [] : splitArgs(methM[3]).map(a=>evalExpr(a,env,funcs,outBuf,lineNo));
+    if(Array.isArray(obj) && mName==="append"){ obj.push(args[0]); return null; }
+    if(typeof obj==="string" && mName==="upper") return obj.toUpperCase();
+    if(typeof obj==="string" && mName==="lower") return obj.toLowerCase();
+    throw new Error("Line "+lineNo+": AttributeError: '"+pyType(obj)+"' object has no attribute '"+mName+"'");
+  }
+
+  const callM = expr.match(/^([a-zA-Z_][a-zA-Z0-9_]*)\((.*)\)$/);
+  if(callM){
+    const fn = callM[1];
+    const args = callM[2].trim()==="" ? [] : splitArgs(callM[2]).map(a=>evalExpr(a,env,funcs,outBuf,lineNo));
+    if(fn==="print"){ outBuf.push(args.map(pyStr).join(" ")); return null; }
+    if(fn==="len"){
+      if(args.length!==1) throw new Error("Line "+lineNo+": TypeError: len() takes exactly one argument");
+      if(typeof args[0]==="string"||Array.isArray(args[0])) return args[0].length;
+      throw new Error("Line "+lineNo+": TypeError: object of type '"+pyType(args[0])+"' has no len()");
+    }
+    if(fn==="round"){
+      if(args.length===1) return Math.round(args[0]);
+      const f=Math.pow(10,args[1]); return Math.round(args[0]*f)/f;
+    }
+    if(fn==="int") return parseInt(args[0],10);
+    if(fn==="float") return parseFloat(args[0]);
+    if(fn==="str") return pyStr(args[0]);
+    if(fn==="type") return "<class '"+pyType(args[0])+"'>";
+    if(fn==="range"){
+      let start=0, stop=0, step=1;
+      if(args.length===1){ stop=args[0]; }
+      else if(args.length===2){ start=args[0]; stop=args[1]; }
+      else if(args.length===3){ start=args[0]; stop=args[1]; step=args[2]; }
+      const arr=[];
+      if(step>0) for(let x=start;x<stop;x+=step) arr.push(x);
+      else if(step<0) for(let x=start;x>stop;x+=step) arr.push(x);
+      return arr;
+    }
+    if(funcs[fn]){
+      const fdef = funcs[fn];
+      if(args.length !== fdef.params.length) throw new Error("Line "+lineNo+": TypeError: "+fn+"() takes "+fdef.params.length+" positional argument(s) but "+args.length+" were given");
+      const localEnv = Object.assign({}, env);
+      fdef.params.forEach((p,idx)=>localEnv[p]=args[idx]);
+      const res = execBlock(fdef.body, localEnv, funcs, outBuf, {inFunc:true});
+      return res && res.ret ? res.val : null;
+    }
+    if(fn==="Print") throw new Error("Line "+lineNo+": NameError: name 'Print' is not defined. Did you mean 'print'?");
+    throw new Error("Line "+lineNo+": NameError: name '"+fn+"' is not defined");
+  }
+
+  if(isIdent(expr)){
+    if(expr in env) return env[expr];
+    const lower = Object.keys(env).find(k=>k.toLowerCase()===expr.toLowerCase());
+    if(lower) throw new Error("Line "+lineNo+": NameError: name '"+expr+"' is not defined. Check capitalisation ('"+lower+"').");
+    throw new Error("Line "+lineNo+": NameError: name '"+expr+"' is not defined");
+  }
+
+  throw new Error("Line "+lineNo+": SyntaxError: invalid syntax near '"+expr+"'");
+}
+
+function parseLines(src){
+  const rawLines = src.replace(/\r\n/g,"\n").split("\n");
+  const out = [];
+  rawLines.forEach((raw, idx)=>{
+    let clean="", q=null;
+    for(let i=0;i<raw.length;i++){
+      const c=raw[i];
+      if(q){ clean+=c; if(c===q && raw[i-1]!=="\\") q=null; continue; }
+      if(c==='"'||c==="'"){ q=c; clean+=c; continue; }
+      if(c==="#") break;
+      clean+=c;
+    }
+    if(clean.trim()==="") return;
+    const indent = clean.match(/^ */)[0].length;
+    if(clean.startsWith("\t")) throw new Error("Line "+(idx+1)+": TabError: use 4 spaces instead of tabs for indentation.");
+    out.push({lineNo:idx+1, indent, text:clean.trim()});
+  });
+  return out;
+}
+
+function collectBlock(lines, startIdx, parentIndent){
+  const block=[];
+  let i=startIdx;
+  if(i>=lines.length || lines[i].indent <= parentIndent){
+    throw new Error("Line "+lines[startIdx-1].lineNo+": IndentationError: expected an indented block after ':'");
+  }
+  const blockIndent = lines[i].indent;
+  while(i<lines.length && lines[i].indent >= blockIndent){
+    if(lines[i].indent !== blockIndent && block.length===0){
+      throw new Error("Line "+lines[i].lineNo+": IndentationError: unexpected indent");
+    }
+    block.push(lines[i]);
+    i++;
+  }
+  return {block, nextIdx:i};
+}
+
+function execBlock(lines, env, funcs, outBuf, ctx){
+  let i=0;
+  while(i<lines.length){
+    const cur = lines[i];
+    const t = cur.text;
+
+    if(t==="return" || t.startsWith("return ")){
+      if(!ctx.inFunc) throw new Error("Line "+cur.lineNo+": SyntaxError: 'return' outside function");
+      const val = t==="return" ? null : evalExpr(t.slice(7), env, funcs, outBuf, cur.lineNo);
+      return {ret:true, val};
+    }
+
+    if(t.startsWith("def ")){
+      const m = t.match(/^def\s+([a-zA-Z_][a-zA-Z0-9_]*)\(([^)]*)\)\s*:$/);
+      if(!m) throw new Error("Line "+cur.lineNo+": SyntaxError: invalid function definition (check ':' at the end)");
+      const params = m[2].trim()==="" ? [] : m[2].split(",").map(p=>p.trim());
+      const {block, nextIdx} = collectBlock(lines, i+1, cur.indent);
+      funcs[m[1]] = {params, body:block};
+      i = nextIdx;
+      continue;
+    }
+
+    if(t.startsWith("if ")){
+      if(!t.endsWith(":")) throw new Error("Line "+cur.lineNo+": SyntaxError: expected ':' at end of if statement");
+      const branches = [];
+      let cond = t.slice(3,-1).trim();
+      let {block, nextIdx} = collectBlock(lines, i+1, cur.indent);
+      branches.push({cond, block, lineNo:cur.lineNo});
+      i = nextIdx;
+      while(i<lines.length && lines[i].indent===cur.indent && (lines[i].text.startsWith("elif ") || lines[i].text==="else:")){
+        const bt = lines[i].text;
+        if(bt.startsWith("elif ")){
+          if(!bt.endsWith(":")) throw new Error("Line "+lines[i].lineNo+": SyntaxError: expected ':' at end of elif");
+          const bcond = bt.slice(5,-1).trim();
+          const sub = collectBlock(lines, i+1, cur.indent);
+          branches.push({cond:bcond, block:sub.block, lineNo:lines[i].lineNo});
+          i = sub.nextIdx;
+        } else {
+          const sub = collectBlock(lines, i+1, cur.indent);
+          branches.push({cond:null, block:sub.block, lineNo:lines[i].lineNo});
+          i = sub.nextIdx;
+          break;
+        }
+      }
+      for(const br of branches){
+        if(br.cond===null || Boolean(evalExpr(br.cond, env, funcs, outBuf, br.lineNo))){
+          const res = execBlock(br.block, env, funcs, outBuf, ctx);
+          if(res && res.ret) return res;
+          break;
+        }
+      }
+      continue;
+    }
+
+    if(t.startsWith("for ")){
+      const m = t.match(/^for\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+in\s+(.+):$/);
+      if(!m) throw new Error("Line "+cur.lineNo+": SyntaxError: invalid for loop (check 'for item in sequence:')");
+      const iter = evalExpr(m[2], env, funcs, outBuf, cur.lineNo);
+      if(!Array.isArray(iter) && typeof iter!=="string") throw new Error("Line "+cur.lineNo+": TypeError: '"+pyType(iter)+"' object is not iterable");
+      const {block, nextIdx} = collectBlock(lines, i+1, cur.indent);
+      for(const item of iter){
+        env[m[1]] = item;
+        const res = execBlock(block, env, funcs, outBuf, ctx);
+        if(res && res.ret) return res;
+      }
+      i = nextIdx;
+      continue;
+    }
+
+    if(t.startsWith("while ")){
+      if(!t.endsWith(":")) throw new Error("Line "+cur.lineNo+": SyntaxError: expected ':' at end of while loop");
+      const cond = t.slice(6,-1).trim();
+      const {block, nextIdx} = collectBlock(lines, i+1, cur.indent);
+      let guard = 0;
+      while(Boolean(evalExpr(cond, env, funcs, outBuf, cur.lineNo))){
+        if(++guard > 500) throw new Error("Line "+cur.lineNo+": RuntimeError: Loop stopped after 500 steps—check your loop condition.");
+        const res = execBlock(block, env, funcs, outBuf, ctx);
+        if(res && res.ret) return res;
+      }
+      i = nextIdx;
+      continue;
+    }
+
+    const augM = t.match(/^([a-zA-Z_][a-zA-Z0-9_]*)\s*(\+=|-=|\*=|\/=)\s*(.+)$/);
+    if(augM){
+      const vname=augM[1], op=augM[2][0], rhs=augM[3];
+      if(!(vname in env)) throw new Error("Line "+cur.lineNo+": NameError: name '"+vname+"' is not defined before '"+augM[2]+"'");
+      env[vname] = evalExpr(vname+" "+op+" ("+rhs+")", env, funcs, outBuf, cur.lineNo);
+      i++; continue;
+    }
+
+    let eqIdx=-1, q=null, depth=0;
+    for(let k=0;k<t.length;k++){
+      const c=t[k];
+      if(q){ if(c===q && t[k-1]!=="\\") q=null; continue; }
+      if(c==='"'||c==="'"){ q=c; continue; }
+      if(c==="("||c==="["||c==="{") depth++;
+      if(c===")"||c==="]"||c==="}") depth--;
+      if(depth===0 && c==="=" && t[k+1]!=="=" && t[k-1]!=="=" && t[k-1]!=="!" && t[k-1]!=="<" && t[k-1]!==">"){
+        eqIdx=k; break;
+      }
+    }
+    if(eqIdx>0){
+      const lhs = t.slice(0,eqIdx).trim();
+      const rhs = t.slice(eqIdx+1).trim();
+      if(!isIdent(lhs)) throw new Error("Line "+cur.lineNo+": SyntaxError: invalid variable name '"+lhs+"'");
+      env[lhs] = evalExpr(rhs, env, funcs, outBuf, cur.lineNo);
+      i++; continue;
+    }
+
+    evalExpr(t, env, funcs, outBuf, cur.lineNo);
+    i++;
+  }
+  return null;
+}
+
+function run(src){
+  const env={}, funcs={}, outBuf=[];
+  try{
+    const lines = parseLines(src);
+    execBlock(lines, env, funcs, outBuf, {inFunc:false});
+    return {ok:true, out:outBuf.join("\n"), env, funcs};
+  }catch(err){
+    return {ok:false, out:outBuf.join("\n"), err:err.message||String(err), env, funcs};
+  }
+}
+
+return {run, pyType, pyStr};
+})();
+
+/* Step guide for the slide-up panel */
+const GUIDE=[
+/* ---------- Part 1: Variables & Types (4 steps) ---------- */
+[
+ {say:["Variables store values under names using <code>=</code>. Python infers types (<code>str</code>, <code>int</code>, <code>float</code>, <code>bool</code>) from the value.",
+       "Identifiers are case-sensitive: <code>score</code> and <code>Score</code> are distinct."],
+  do:["Click each coloured token in the snippet.","Review the four basic data types."],
+  extra:["Quotes turn digits into strings (<code>\"84\"</code> is text, not a number)."]},
+ {say:["Predict what the code will print before running it.",
+       "Observe how each variable appears in the Memory Boxes panel."],
+  do:["Try a preset or edit the script and run (▶ Run or Ctrl+Enter).","Complete all four checklist items."],
+  extra:["f-strings (<code>f\"...\"</code>) embed expressions inside <code>{ }</code>."]},
+ {say:["Test your understanding of types, reassignment, and naming rules."],
+  do:["Answer each question and read the feedback."],
+  extra:["In Python 3, <code>/</code> produces a <code>float</code> whereas <code>//</code> performs floor division."]},
+ {say:["🍎 <b>Mental model:</b> <b>Predict, then run</b>."],
+  do:["Read the card and add it to your toolkit."],
+  extra:["Always distinguish <code>=</code> (assignment) from <code>==</code> (equality comparison)."]},
+],
+/* ---------- Part 2: Decisions (4 steps) ---------- */
+[
+ {say:["Selection (<code>if / elif / else</code>) chooses which branch executes based on boolean conditions.",
+       "Colons (<code>:</code>) and 4-space indentation define code blocks."],
+  do:["Review comparison operators and the tiered grading example."],
+  extra:["Only the first matching branch in an <code>if / elif / else</code> chain runs."]},
+ {say:["Build a 3-tier grade classifier using <code>if</code>, <code>elif</code>, and <code>else</code>."],
+  do:["Complete the branches and run the script.","Test boundary scores like 80, 79, 50, and 49."],
+  extra:["Check condition order when using <code>&gt;=</code> thresholds."]},
+ {say:["Articulating why each control structure exists reinforces clear design."],
+  do:["Write short explanations in your own words.","Download your notes if needed."],
+  extra:["Contrast <code>if / elif</code> (mutually exclusive choices) with independent checks."]},
+ {say:["🍎 <b>Mental model:</b> <b>Boundary value testing</b>."],
+  do:["Read the card and add it to your toolkit."],
+  extra:["Test right on, just below, and just above cutoff values."]},
+],
+/* ---------- Part 3: Lists & Loops (4 steps) ---------- */
+[
+ {say:["Lists hold ordered items in <code>[ ]</code> with 0-based indexing.",
+       "<code>for</code> loops iterate over sequences; <code>while</code> loops repeat while a condition is <code>True</code>."],
+  do:["Examine list indexing and loop patterns."],
+  extra:["<code>len(marks)</code> returns the number of items in the list."]},
+ {say:["Use an accumulator variable before the loop to sum values across iterations."],
+  do:["Complete the loop mission and run the script."],
+  extra:["Keep summary <code>print()</code> calls outside the indented loop body."]},
+ {say:["Trace list indexes, loop counts, and accumulator updates step by step."],
+  do:["Answer each loop-tracing item."],
+  extra:["<code>range(4)</code> yields <code>0, 1, 2, 3</code>."]},
+ {say:["🍎 <b>Mental model:</b> <b>Trace tables &amp; accumulators</b>."],
+  do:["Read the card and add it to your toolkit."],
+  extra:["Initialising an accumulator inside a loop resets it on every pass."]},
+],
+/* ---------- Part 4: Functions, Errors & Exit Ticket (4 steps) ---------- */
+[
+ {say:["Functions (<code>def</code>) encapsulate reusable logic and send values back via <code>return</code>."],
+  do:["Define <code>get_status(mark)</code> and call it with test values."],
+  extra:["A function executes only when called."]},
+ {say:["Identify syntax, indentation, and return-value bugs from code snippets."],
+  do:["Complete all three error clinic items."],
+  extra:["Missing colons and unindented bodies are frequent early errors."]},
+ {say:["🍎 <b>Mental model:</b> <b>Read errors from the bottom</b>."],
+  do:["Read the card and add it to your toolkit."],
+  extra:["The last line of a traceback names the exception and reason."]},
+ {say:["Six multiple-choice questions—one locked attempt."],
+  do:["Answer all questions and click <b>🔒 Lock in my answers</b>."],
+  extra:["Click 'Show me the answers' after locking to review explanations."]},
+]
+];
+
+(function(){
+"use strict";
+const PFX="ewc-py-basics-lab-v3-";
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const store={get(k,d){try{const v=localStorage.getItem(PFX+k);return v===null?d:JSON.parse(v)}catch(e){return d}},
+             set(k,v){try{localStorage.setItem(PFX+k,JSON.stringify(v))}catch(e){}}};
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+/* ---------- navigation: parts + steps ---------- */
+const blocks=$$("section.block");let cur=Math.min(store.get("block",0),blocks.length-1);
+const done=new Set(store.get("done",[]));
+const stepPos=store.get("steps",{});
+const stepsOf=b=>{const out=[];$$("[data-step]",b).map((el,ix)=>({el,o:+(el.dataset.o||ix*10+1)})).sort((x,y)=>x.o-y.o)
+  .forEach(({el})=>el.dataset.step.split("||").forEach(lab=>out.push({el,lab:lab.trim()})));return out};
+const STEPS=blocks.map(stepsOf);
+function buildNav(){
+  const nav=$("#nav");nav.innerHTML="";
+  blocks.forEach((b,i)=>{const bt=document.createElement("button");
+    bt.textContent=(i+1)+" "+b.dataset.title;bt.onclick=()=>show(i,0);
+    if(i===cur)bt.classList.add("on");if(done.has(i))bt.classList.add("done");nav.appendChild(bt)});
+}
+function paintSteps(scroll){
+  const st=STEPS[cur],k=stepPos[cur]||0;
+  $$(".spot").forEach(e=>e.classList.remove("spot"));
+  $("#sbTitle").innerHTML="Part "+(cur+1)+" of "+blocks.length+" · <b>"+esc(blocks[cur].dataset.title)+"</b> · Step "+(k+1)+" of "+st.length+": "+esc(st[k].lab);
+  const chips=$("#sbChips");chips.innerHTML="";
+  st.forEach((x,i)=>{const c=document.createElement("button");c.textContent=(i+1)+". "+x.lab;
+    if(i<k)c.classList.add("done");if(i===k)c.classList.add("on");c.onclick=()=>setStep(i,true);chips.appendChild(c)});
+  st[k].el.dataset.look="👉 Look here · Step "+(k+1)+": "+st[k].lab;st[k].el.classList.add("spot");
+  const g=(GUIDE[cur]||[])[k]||{say:[],do:[],extra:[]};
+  $("#gHead").innerHTML="Part "+(cur+1)+" · <b>"+esc(blocks[cur].dataset.title)+"</b> · Step "+(k+1)+" of "+st.length+": <b>"+esc(st[k].lab)+"</b>";
+  const fill=(id,arr,empty)=>{$(id).innerHTML=(arr&&arr.length?arr:[empty]).map(x=>"<li>"+x+"</li>").join("")};
+  fill("#gSay",g.say,"<i>Work through the highlighted card.</i>");fill("#gDo",g.do,"<i>Follow the instructions above.</i>");fill("#gExtra",g.extra,"<i>–</i>");
+  if(scroll)st[k].el.scrollIntoView({behavior:"smooth",block:"start"});
+  $("#prevB").disabled=cur===0&&k===0;$("#nextB").disabled=cur===blocks.length-1&&k===st.length-1;
+  $("#progress i").style.width=((cur+(k+1)/st.length)/blocks.length*100)+"%";
+}
+function setStep(k,scroll){stepPos[cur]=Math.max(0,Math.min(STEPS[cur].length-1,k));store.set("steps",stepPos);paintSteps(scroll)}
+function show(i,k){cur=Math.max(0,Math.min(blocks.length-1,i));blocks.forEach((b,j)=>b.classList.toggle("active",j===cur));
+  store.set("block",cur);buildNav();window.scrollTo(0,0);
+  if(k!==undefined)stepPos[cur]=k<0?STEPS[cur].length-1:k;setStep(stepPos[cur]||0,k!==undefined&&k!==0);}
+function nextStep(){const k=stepPos[cur]||0;if(k<STEPS[cur].length-1)setStep(k+1,true);else if(cur<blocks.length-1)show(cur+1,0)}
+function prevStep(){const k=stepPos[cur]||0;if(k>0)setStep(k-1,true);else if(cur>0)show(cur-1,-1)}
+function markDone(i){done.add(i);store.set("done",[...done]);buildNav();}
+$("#prevB").onclick=prevStep;$("#nextB").onclick=nextStep;
+$("#adminClose").onclick=()=>$("#admin").classList.add("hidden");
+function setGuide(on){document.body.classList.toggle("guide-open",on);$("#guideBtn").classList.toggle("on",on);$("#guideBtn").textContent=on?"▼ Guide":"▲ Guide";store.set("guide",on)}
+function setFocus(on){document.body.classList.toggle("focus",on);$("#focusBtn").classList.toggle("on",on);store.set("focus",on)}
+$("#guideBtn").onclick=()=>setGuide(!document.body.classList.contains("guide-open"));
+$("#focusBtn").onclick=()=>setFocus(!document.body.classList.contains("focus"));
+setGuide(store.get("guide",false));setFocus(store.get("focus",true));
+
+/* ---------- font & reveal ---------- */
+let fs=store.get("fs",17);const setFs=v=>{fs=Math.max(13,Math.min(26,v));document.documentElement.style.fontSize=fs+"px";store.set("fs",fs)};setFs(fs);
+$("#fontUp").onclick=()=>setFs(fs+1);$("#fontDn").onclick=()=>setFs(fs-1);
+document.addEventListener("click",e=>{const r=e.target.closest("[data-reveal]");if(r){$("#"+r.dataset.reveal).classList.toggle("hidden")}});
+document.addEventListener("keydown",e=>{
+  const tag=(e.target.tagName||"").toLowerCase();if(tag==="input"||tag==="textarea")return;
+  if(e.key==="ArrowRight"){e.preventDefault();nextStep()}
+  if(e.key==="ArrowLeft"){e.preventDefault();prevStep()}
+  if(e.key==="ArrowUp"&&!document.body.classList.contains("guide-open")){e.preventDefault();setGuide(true)}
+  if(e.key==="ArrowDown"&&document.body.classList.contains("guide-open")){e.preventDefault();setGuide(false)}
+  if(e.ctrlKey&&e.altKey&&e.shiftKey&&(e.key==="R"||e.key==="r")){e.preventDefault();$("#admin").classList.toggle("hidden")}
+});
+
+/* ---------- interactive anatomy ---------- */
+(function(){
+  const say=[
+    "<b>learner_name</b>: a variable name using <code>snake_case</code> (lowercase letters and underscores).",
+    "<b>\"Karabo\"</b>: a <b>string</b> (<code>str</code>) literal enclosed in quotation marks.",
+    "<b>score = 84</b>: assigns an <b>integer</b> (<code>int</code>) value to the variable <code>score</code>.",
+    "<b>print(...)</b>: a built-in function that outputs values to the console."
+  ];
+  $$("#prBig [data-p]").forEach(s=>s.onclick=()=>{
+    $$("#prBig span").forEach(x=>x.classList.toggle("on",x.dataset.p===s.dataset.p));
+    $("#prSay").innerHTML=say[+s.dataset.p];
+  });
+})();
+
+/* ---------- starter code per IDE ---------- */
+const STARTERS = {
+  ide1: "# 1. Assign string and integer variables\nstudent = \"Karabo\"\nscore = 84\n\n# 2. Compute percentage and print\npercent = round(score / 120 * 100, 1)\nprint(f\"{student}: {score} ({percent}%)\")",
+  ide2: "score = 85\n\n# Complete if / elif / else branches\nif score >= 80:\n    grade = \"Distinction\"\n# Add elif for >= 50 and else below:\n\nprint(grade)",
+  ide3: "marks = [55, 84, 42, 91, 76]\ntotal = 0\n\n# Accumulate marks inside the loop\nfor m in marks:\n    pass  # replace with total += m\n\nprint(\"Total:\", total)\nprint(\"Average:\", total / len(marks))",
+  ide4: "# Define a function that returns status\ndef get_status(mark):\n    if mark >= 50:\n        return \"Pass\"\n    return \"Fail\"\n\n# Call get_status() with test values\nprint(get_status(72))"
+};
+
+const IDES = {};
+const LAST_RUN = {};
+
+function renderMemory(id, res){
+  const box = $('[data-mem="'+id+'"]');
+  if(!box) return;
+  const env = (res && res.env) || {};
+  const funcs = (res && res.funcs) || {};
+  const keys = Object.keys(env);
+  const fkeys = Object.keys(funcs);
+  let h = '<div class="zone z1"><b>📦 Memory Boxes (Variables)</b><span>state after Run</span>';
+  if(!keys.length) h += '<p class="small">(Run code to inspect variables)</p>';
+  else keys.forEach(k=>{
+    h += '<span class="vchip">'+esc(k)+' = '+esc(PYSIM.pyStr(env[k]))+' <i>('+PYSIM.pyType(env[k])+')</i></span>';
+  });
+  h += '</div>';
+  if(fkeys.length){
+    h += '<div class="zone z3"><b>🧩 Functions</b><span>defined in script</span>';
+    fkeys.forEach(f=> h += '<span class="vchip">'+esc(f)+'('+esc(funcs[f].params.join(", "))+')</span>');
+    h += '</div>';
+  }
+  box.innerHTML = h;
+
+  if(id === "ide2" && $("#m2Badge")){
+    const badge = $("#m2Badge");
+    if(!res || !res.ok){
+      badge.className = "status-pill fail";
+      badge.textContent = res && !res.ok ? "Check code / error" : "Not run yet";
+    } else if(typeof env.grade === "string"){
+      badge.className = "status-pill " + (env.grade === "Distinction" ? "pass" : env.grade === "Pass" ? "warn" : "fail");
+      badge.textContent = env.grade + (typeof env.score === "number" ? " (score=" + env.score + ")" : "");
+    } else {
+      badge.className = "status-pill";
+      badge.textContent = "Define `grade`";
+    }
+  }
+}
+
+function buildIDE(host, id){
+  const saved = store.get("code-"+id, STARTERS[id]);
+  const root = document.createElement("div");
+  root.className = "ide";
+  root.innerHTML = '<div class="ide-bar"><span class="dot">●</span><span class="dot">●</span><span class="dot">●</span><b>'+id+'.py · EWC Sandbox</b><button class="rst" title="Reset starter code">↺ Reset</button><button class="run" title="Run script (Ctrl+Enter)">▶ Run</button></div>'+
+    '<div class="ide-ed"><div class="ide-gut">1</div><textarea spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Python code editor"></textarea></div>'+
+    '<div class="ide-out-hdr"><span>Output</span><span class="st-badge">Ready</span></div>'+
+    '<div class="ide-out"><span class="small">Click ▶ Run to execute your script.</span></div>';
+  host.appendChild(root);
+
+  const ta = $("textarea", root), gut = $(".ide-gut", root), outEl = $(".ide-out", root), stBadge = $(".st-badge", root);
+  ta.value = saved;
+
+  function syncLines(){
+    const n = ta.value.split("\n").length;
+    gut.innerHTML = Array.from({length:n}, (_,i)=>i+1).join("<br>");
+    gut.scrollTop = ta.scrollTop;
+  }
+  ta.addEventListener("scroll", ()=>{ gut.scrollTop = ta.scrollTop; });
+  ta.addEventListener("input", ()=>{ syncLines(); store.set("code-"+id, ta.value); });
+  ta.addEventListener("keydown", e=>{
+    e.stopPropagation();
+    if(e.key==="Tab"){
+      e.preventDefault();
+      const s = ta.selectionStart, end = ta.selectionEnd;
+      ta.value = ta.value.slice(0,s) + "    " + ta.value.slice(end);
+      ta.selectionStart = ta.selectionEnd = s + 4;
+      syncLines(); store.set("code-"+id, ta.value);
+    }
+    if((e.ctrlKey||e.metaKey) && e.key==="Enter"){
+      e.preventDefault(); execute();
+    }
+  });
+
+  function execute(){
+    const src = ta.value;
+    const res = PYSIM.run(src);
+    LAST_RUN[id] = {src, res};
+    let html = "";
+    if(res.out) html += '<span class="out-ok">'+esc(res.out)+'</span>\n';
+    if(!res.ok){
+      html += '<span class="out-err">✖ '+esc(res.err)+'</span>';
+      stBadge.textContent = "Error"; stBadge.style.color = "#ff6b6b";
+    } else {
+      if(!res.out) html += '<span class="small">(Completed with no printed output)</span>';
+      stBadge.textContent = "OK"; stBadge.style.color = "#8ae234";
+    }
+    outEl.innerHTML = html;
+    renderMemory(id, res);
+    checkMissions();
+  }
+
+  $(".run", root).onclick = execute;
+  $(".rst", root).onclick = ()=>{
+    ta.value = STARTERS[id];
+    store.set("code-"+id, ta.value);
+    syncLines();
+    outEl.innerHTML = '<span class="small">Starter code restored. Click ▶ Run.</span>';
+    renderMemory(id, null);
+  };
+
+  syncLines();
+  renderMemory(id, null);
+  IDES[id] = {ta, execute, setCode(newCode){
+    ta.value = newCode;
+    store.set("code-"+id, newCode);
+    syncLines();
+    execute();
+  }};
+}
+$$("[data-ide]").forEach(h=>buildIDE(h, h.dataset.ide));
+
+/* Preset buttons */
+$$("[data-presets]").forEach(row=>{
+  const ideId = row.dataset.presets;
+  $$(".preset-chip", row).forEach(btn=>{
+    btn.onclick = ()=>{
+      $$(".preset-chip", row).forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      if(IDES[ideId]) IDES[ideId].setCode(btn.dataset.code);
+    };
+  });
+});
+
+/* ---------- missions ---------- */
+const ticks = new Set(store.get("ticks", []));
+const TOTAL_TASKS = 17;
+const MISSIONS = {
+  m1: {block:0, done:"#m1done", items:{
+    str: r => r && r.res.ok && Object.values(r.res.env).some(v=>typeof v==="string" && v.length>0),
+    int: r => r && r.res.ok && Object.values(r.res.env).some(v=>typeof v==="number" && Number.isInteger(v)),
+    pct: r => r && r.res.ok && ("percent" in r.res.env || /\//.test(r.src)),
+    pr:  r => r && r.res.ok && r.res.out.trim().length > 0 && /print\s*\(/.test(r.src)
+  }},
+  m2: {block:1, done:"#m2done", items:{
+    var:  r => r && r.res.ok && typeof r.res.env.score === "number",
+    if:   r => r && r.res.ok && /\bif\s+score\s*>=\s*80\s*:/.test(r.src),
+    elif: r => r && r.res.ok && /\belif\s+score\s*>=\s*50\s*:/.test(r.src),
+    else: r => r && r.res.ok && /\belse\s*:/.test(r.src),
+    pr:   r => r && r.res.ok && typeof r.res.env.grade === "string" && r.res.out.includes(r.res.env.grade)
+  }},
+  m3: {block:2, done:"#m3done", items:{
+    list: r => r && r.res.ok && Array.isArray(r.res.env.marks) && r.res.env.marks.length >= 3,
+    acc:  r => r && r.res.ok && typeof r.res.env.total === "number",
+    for:  r => r && r.res.ok && /\bfor\s+\w+\s+in\s+marks\s*:/.test(r.src),
+    add:  r => r && r.res.ok && r.res.env.total === r.res.env.marks.reduce((a,b)=>a+b,0),
+    pr:   r => r && r.res.ok && r.res.out.includes(String(r.res.env.total))
+  }},
+  m4: {block:3, done:"#m4done", items:{
+    def:  r => r && r.res.ok && "get_status" in r.res.funcs,
+    ret:  r => r && r.res.ok && /\breturn\b/.test(r.src),
+    call: r => r && r.res.ok && (r.src.match(/get_status\s*\(/g)||[]).length >= 3 && r.res.out.split("\n").filter(Boolean).length >= 2
+  }}
+};
+
+function updateXP(){
+  if($("#xpScore")) $("#xpScore").textContent = ticks.size + " / " + TOTAL_TASKS + " Tasks";
+  if($("#xpHint")){
+    $("#xpHint").textContent = ticks.size === TOTAL_TASKS
+      ? "All 17 lab tasks unlocked — ready for Exit Ticket!"
+      : (TOTAL_TASKS - ticks.size) + " lab task(s) remaining";
+  }
+}
+
+function checkMissions(){
+  const map = {m1:"ide1", m2:"ide2", m3:"ide3", m4:"ide4"};
+  let grew = false;
+  Object.entries(MISSIONS).forEach(([id, M])=>{
+    const runData = LAST_RUN[map[id]];
+    Object.entries(M.items).forEach(([k, fn])=>{
+      const key = id+"."+k;
+      if(!ticks.has(key) && fn(runData)){ ticks.add(key); grew = true; }
+      const li = $("#"+id+' [data-m="'+k+'"]');
+      if(li) li.classList.toggle("ok", ticks.has(key));
+    });
+    const all = Object.keys(M.items).every(k=>ticks.has(id+"."+k));
+    $(M.done).classList.toggle("hidden", !all);
+    if(all && !done.has(M.block) && M.block < 3) markDone(M.block);
+  });
+  if(grew) store.set("ticks", [...ticks]);
+  updateXP();
+}
+checkMissions();
+
+/* ---------- practice questions ---------- */
+function practice(host, qs){
+  qs.forEach((q,qi)=>{
+    const d=document.createElement("div"); d.className="q";
+    d.innerHTML="<b>"+(qi+1)+".</b> "+q.q+(q.pre?"<pre>"+esc(q.pre)+"</pre>":"")+'<div class="opts">'+q.o.map((o,i)=>'<button data-i="'+i+'">'+o+"</button>").join("")+'</div><div class="why hidden"></div>';
+    $$("button",d).forEach(b=>b.onclick=()=>{
+      const i=+b.dataset.i, ok=i===q.a;
+      $$("button",d).forEach(x=>{ x.classList.remove("ok","bad"); if(+x.dataset.i===i) x.classList.add(ok?"ok":"bad"); });
+      const w=$(".why",d); w.classList.remove("hidden"); w.classList.toggle("badw",!ok); w.innerHTML=(ok?"✔ ":"✘ Not quite. ")+q.why;
+    });
+    host.appendChild(d);
+  });
+}
+
+practice($("#pq1"),[
+  {q:"What is the data type of <code>val = \"85\"</code>?",o:["<code>int</code> (integer)","<code>str</code> (string)","<code>float</code> (decimal)"],a:1,why:"Quotation marks around <code>85</code> create a string (<code>str</code>), not a number."},
+  {q:"What does this snippet print?",pre:"x = 10\nx = x + 5\nprint(x)",o:["<code>10</code>","<code>15</code>","<code>x + 5</code>"],a:1,why:"<code>10 + 5</code> evaluates to <code>15</code> and overwrites variable <code>x</code>."},
+  {q:"Which identifier is valid in Python?",o:["<code>2nd_score</code>","<code>learner score</code>","<code>learner_score</code>"],a:2,why:"Identifiers cannot start with a digit or contain spaces; underscores are standard."}
+]);
+
+practice($("#pq3"),[
+  {q:"What does this code print?",pre:"scores = [10, 20, 30]\nprint(scores[1])",o:["<code>10</code>","<code>20</code>","<code>30</code>"],a:1,why:"Indexing starts at <code>0</code>, so <code>scores[1]</code> is the second item (<code>20</code>)."},
+  {q:"How many times does <code>print(\"Hi\")</code> run?",pre:"for i in range(4):\n    print(\"Hi\")",o:["3 times","4 times","5 times"],a:1,why:"<code>range(4)</code> produces four values: <code>0, 1, 2, 3</code>."},
+  {q:"What goes wrong here?",pre:"marks = [40, 60]\nfor m in marks:\n    total = 0\n    total += m\nprint(total)",o:["<code>total = 0</code> sits inside the loop and resets every pass","<code>marks</code> uses square brackets","<code>+=</code> is not valid"],a:0,why:"Because <code>total = 0</code> is inside the loop, <code>total</code> is reset to 0 on each iteration."}
+]);
+
+practice($("#pq4"),[
+  {q:"Why does this fail?",pre:"if score >= 50\n    print(\"Pass\")",o:["Missing colon <code>:</code> at the end of the <code>if</code> header","<code>print</code> must be capitalised","<code>50</code> must be quoted"],a:0,why:"Compound statement headers (<code>if</code>, <code>elif</code>, <code>else</code>, <code>for</code>, <code>while</code>, <code>def</code>) end with <code>:</code>."},
+  {q:"Why does this fail?",pre:"if score >= 50:\nprint(\"Pass\")",o:["Missing indentation for the block under <code>if</code>","Missing semicolon","<code>Pass</code> is a keyword"],a:0,why:"Statements inside an <code>if</code> block must be indented (typically 4 spaces)."},
+  {q:"What does <code>print(add(3, 4))</code> output?",pre:"def add(a, b):\n    result = a + b",o:["<code>7</code>","<code>None</code>","<code>result</code>"],a:1,why:"Without a <code>return</code> statement, the function returns <code>None</code>."}
+]);
+
+/* ---------- notes log ---------- */
+const KEYWORDS = [
+  ["if / elif / else", "Branching based on conditions"],
+  ["for item in list:", "Iterating over items in a sequence"],
+  ["while condition:", "Repeating while a condition holds"],
+  ["def name(param):", "Defining a reusable function"]
+];
+let notes = store.get("notes", {});
+function buildLog(){
+  const host = $("#clog");
+  host.innerHTML = '<table class="clog"><tr><th>Structure</th><th>Focus</th><th>Your note (in your own words)</th></tr>'+
+    KEYWORDS.map(([k,hint])=>'<tr><td class="c">'+esc(k)+'</td><td class="small">'+esc(hint)+'</td><td><input data-k="'+esc(k)+'" value="'+esc(notes[k]||"")+'" placeholder="When and why is this used?"></td></tr>').join("")+"</table>";
+  $$("#clog input").forEach(inp=>{
+    inp.classList.toggle("has", !!inp.value.trim());
+    inp.addEventListener("input", ()=>{
+      notes[inp.dataset.k] = inp.value;
+      store.set("notes", notes);
+      inp.classList.toggle("has", !!inp.value.trim());
+      updateLogCount();
+    });
+    inp.addEventListener("keydown", e=>e.stopPropagation());
+  });
+  updateLogCount();
+}
+function updateLogCount(){
+  const n = KEYWORDS.filter(([k])=>(notes[k]||"").trim()).length;
+  $("#clogCount").textContent = n + " of " + KEYWORDS.length + " notes written.";
+}
+buildLog();
+
+function download(name, text){
+  const blob = new Blob([text.replace(/\r?\n/g,"\r\n")], {type:"text/plain"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+function logSummaryText(){
+  return KEYWORDS.map(([k])=> "- " + k + "\n  Note: " + ((notes[k]||"").trim() || "(not written yet)")).join("\n\n");
+}
+$("#clogDl").onclick = ()=> download("ewc_python_structures_notes.txt", "EWC PYTHON STRUCTURES NOTES\n" + "=".repeat(34) + "\n\n" + logSummaryText() + "\n");
+
+/* ---------- toolkit ---------- */
+const TK = [
+  ["predict", "Predict, then run: state expected output before executing"],
+  ["boundary", "Boundary value testing: test below, on, and above cutoffs"],
+  ["tracetable", "Trace tables & accumulators: follow loop state step by step"],
+  ["readerror", "Read errors from the bottom: check exception type and line"]
+];
+const tk = new Set(store.get("tk", []));
+function tkWhere(key){ for(let i=0;i<STEPS.length;i++){ const k=STEPS[i].findIndex(s=>s.el.dataset.tk===key); if(k>=0) return [i,k]; } return null; }
+function paintTk(){
+  $("#tkCount").textContent = tk.size;
+  $$(".tkadd").forEach(b=>{
+    const key = b.closest("[data-tk]").dataset.tk;
+    const got = tk.has(key);
+    b.classList.toggle("got", got);
+    b.textContent = got ? "✔ In my toolkit" : "＋ Add to my toolkit";
+  });
+  $("#tkList").innerHTML = TK.map(([k,t])=>'<li class="'+(tk.has(k)?"got":"")+'">'+esc(t)+(tk.has(k)?"":' <button data-go="'+k+'">go there</button>')+"</li>").join("");
+  $$("#tkList [data-go]").forEach(b=>b.onclick=()=>{ const w=tkWhere(b.dataset.go); if(w) show(w[0],w[1]); });
+}
+$$(".tkadd").forEach(b=>b.onclick=()=>{
+  const key = b.closest("[data-tk]").dataset.tk;
+  tk.has(key) ? tk.delete(key) : tk.add(key);
+  store.set("tk", [...tk]); paintTk();
+  const t = $("#tkBtn"); t.classList.remove("bump"); void t.offsetWidth; t.classList.add("bump");
+});
+$("#tkBtn").onclick = ()=>{ const LAST=blocks.length-1; const k=STEPS[LAST].findIndex(s=>s.lab.startsWith("My evidence")); show(LAST, k<0?0:k); };
+paintTk();
+
+/* ---------- lock-in exit ticket ---------- */
+function lockChallenge(o){
+  const K=k=>"challenge-"+o.key+"-"+k;
+  let picks=store.get(K("picks"),{}), lock=store.get(K("lock"),null); if(lock) picks=lock.picks;
+  let armed=0; const btn=$(o.lockBtn);
+  function pick(q,i){ if(lock) return; picks[q]=i; store.set(K("picks"),picks); paint(); }
+  btn.onclick=()=>{
+    if(lock || Object.keys(picks).length<o.answers.length) return;
+    if(Date.now()>armed){ armed=Date.now()+4000; btn.textContent="Sure? Click again to lock – no changes after this"; return; }
+    const score = o.answers.filter((a,i)=>picks[i]===a).length;
+    lock = {picks:{...picks}, score, at:new Date().toTimeString().slice(0,5)};
+    store.set(K("lock"), lock); markDone(o.blockIx); paint();
+  };
+  function paint(){
+    const shown = !!lock && store.get(K("shown"), false);
+    o.paintItems(picks, lock, shown);
+    const left = o.answers.length - Object.keys(picks).length;
+    if(!lock){
+      btn.disabled = left>0;
+      if(Date.now()>armed) btn.textContent = o.lockText;
+      $(o.left).textContent = left ? left+" still to answer" : "All answered – lock in when ready";
+      return;
+    }
+    $(o.bar).classList.add("hidden");
+    const r = $(o.result); r.classList.remove("hidden");
+    r.innerHTML = '<div class="scorebig">'+o.scoreLabel+'<b>'+lock.score+" / "+o.answers.length+"</b>"+o.msg(lock.score)+
+      '<div class="small">Locked at '+lock.at+"</div></div>"+
+      (shown?"":'<p style="text-align:center"><button class="btn" data-show="1">Show me the answers</button></p>');
+    const sb = $("[data-show]", r); if(sb) sb.onclick=()=>{ store.set(K("shown"), true); paint(); };
+    if(shown && o.onShown) o.onShown(lock);
+  }
+  const rs=$(o.resetBtn); if(rs) rs.onclick=()=>{ ["picks","lock","shown"].forEach(k=>{ try{localStorage.removeItem(PFX+K(k))}catch(e){} }); location.reload(); };
+  paint(); return {pick, paint};
+}
+
+(function(){
+  const qs=[
+    ["Which data type represents whole numbers in Python?",["str","int","bool"],1],
+    ["What symbol introduces an indented block after if, for, or def?",["Semicolon (;)","Colon (:)","Curly brace ({)"],1],
+    ["What is the index of the first item in a Python list?",["0","1","-1"],0],
+    ["Which keyword checks an alternative condition in an if chain?",["elseif","elif","else if"],1],
+    ["Which numbers does range(3) generate?",["1, 2, 3","0, 1, 2","0, 1, 2, 3"],1],
+    ["Which keyword returns a value from a function?",["print","send","return"],2]
+  ];
+  const host=$("#quiz");
+  const els=qs.map(([q,opts],qi)=>{
+    const d=document.createElement("div"); d.className="q";
+    d.innerHTML="<b>"+(qi+1)+". "+esc(q)+'</b><div class="opts">'+opts.map((o,i)=>'<button data-i="'+i+'">'+esc(o)+"</button>").join("")+"</div>";
+    $$("button",d).forEach(b=>b.onclick=()=>api.pick(qi,+b.dataset.i));
+    host.appendChild(d); return d;
+  });
+  const api=lockChallenge({
+    key:"pyquiz1", answers:qs.map(q=>q[2]), blockIx:3, lockBtn:"#quizLock", left:"#quizLeft", bar:"#quizBar", result:"#quizResult", resetBtn:"#quizReset",
+    lockText:"🔒 Lock in my answers", scoreLabel:"Your locked-in score",
+    msg:s=>s===6?"🏆 Full marks (6 / 6)!":s>=5?"🥈 Strong result!":s>=3?"🐍 Good progress!":"📖 Review the earlier parts and sandboxes.",
+    paintItems(picks,lock,shown){
+      els.forEach((d,qi)=>$$("button",d).forEach(b=>{
+        const i=+b.dataset.i;
+        b.classList.toggle("sel",picks[qi]===i);
+        b.disabled=!!lock;
+        b.classList.toggle("ok",shown&&i===qs[qi][2]);
+        b.classList.toggle("bad",shown&&picks[qi]===i&&i!==qs[qi][2]);
+      }));
+    },
+    onShown(lock){
+      $("#badge").classList.remove("hidden");
+      $("#badgeTxt").textContent = lock.score+" / 6 exit ticket · "+ticks.size+" / 17 tasks · "+tk.size+" / 4 mental models.";
+    }
+  });
+})();
+
+$("#evDl").onclick = ()=>{
+  const t = [
+    "EWC PYTHON BASIC STRUCTURES LAB: EVIDENCE",
+    "=".repeat(40),
+    "Generated: " + new Date().toLocaleString(),
+    "Completed tasks: " + ticks.size + " / " + TOTAL_TASKS,
+    "Mental models added: " + tk.size + " / 4",
+    "",
+    "1. CONTROL-FLOW NOTES",
+    "-".repeat(40),
+    logSummaryText(),
+    "",
+    "2. SCRIPTS",
+    "-".repeat(40),
+    "[Part 1: Variables & Types]\n" + store.get("code-ide1", STARTERS.ide1),
+    "\n[Part 2: Selection]\n" + store.get("code-ide2", STARTERS.ide2),
+    "\n[Part 3: Lists & Loops]\n" + store.get("code-ide3", STARTERS.ide3),
+    "\n[Part 4: Functions]\n" + store.get("code-ide4", STARTERS.ide4)
+  ].join("\n");
+  download("ewc_python_structures_evidence.txt", t);
+};
+
+$("#resetAll").onclick = ()=>{
+  try{ Object.keys(localStorage).filter(k=>k.startsWith(PFX)&&!k.includes("challenge-")).forEach(k=>localStorage.removeItem(k)); }catch(e){}
+  location.reload();
+};
+
+show(cur);
+})();
+</script>
+</body>
+</html>

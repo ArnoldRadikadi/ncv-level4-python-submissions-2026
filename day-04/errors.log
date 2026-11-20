@@ -1,0 +1,10 @@
+Line 211: Duplicate meter number 'M001' | Raw: M001,Duplicate Meter,900,930,Mamelodi
+Line 212: Non-numeric or negative meter reading | Raw: M211,Missing Reading,,950,Soshanguve
+Line 213: Non-numeric or negative meter reading | Raw: M212,Negative Reading,-10,20,Mamelodi
+Line 214: Current reading (1100) below previous reading (1200) | Raw: M213,Reversed Reading,1200,1100,Ga-Rankuwa
+Line 215: Non-numeric or negative meter reading | Raw: M214,Invalid Reading,abc,1230,Atteridgeville
+Line 216: Missing area | Raw: M215,Missing Area,900,950,
+Line 217: Expected 5 fields, got 4 | Raw: M216,Too,Few,Fields
+Line 218: Expected 5 fields, got 6 | Raw: M217,Extra,100,120,Mamelodi,EXTRA
+Line 219: Missing household name | Raw: M218,,100,150,Soshanguve
+Line 220: Missing household name | Raw: M219, ,100,130,Mamelodi
